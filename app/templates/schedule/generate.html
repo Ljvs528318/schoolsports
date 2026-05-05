@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}生成赛程 - {{ comp.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-calendar2-plus me-2 text-primary"></i>生成比赛场次 · {{ comp.name }}
+      </div>
+      <div class="card-body p-4">
+        <div class="alert alert-warning small mb-3">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          生成场次将清除已有比赛记录，请谨慎操作。
+        </div>
+
+        <table class="table table-sm mb-4">
+          <tr><th>赛制</th><td>{{ comp.format_label }}</td></tr>
+          <tr><th>参赛类型</th><td>{{ {'individual':'个人赛','team':'团体赛','mixed':'混合赛'}.get(comp.comp_type,'') }}</td></tr>
+          {% if groups %}
+          <tr><th>已分组</th>
+            <td>
+              {% for g in groups %}
+              <span class="badge bg-secondary me-1">{{ g.name }}: {{ g.members.count() }} 队</span>
+              {% endfor %}
+            </td>
+          </tr>
+          {% endif %}
+          <tr><th>积分规则</th><td>胜{{ comp.win_points }}分 · 平{{ comp.draw_points }}分 · 负{{ comp.loss_points }}分</td></tr>
+          {% if comp.format == 'hybrid' %}
+          <tr><th>晋级淘汰赛</th><td>各组前 {{ comp.top_advance }} 名晋级</td></tr>
+          {% endif %}
+        </table>
+
+        <form method="post">
+          <button type="submit" class="btn btn-primary fw-bold px-5"
+                  onclick="return confirm('确认生成比赛场次？')">
+            <i class="bi bi-play-circle me-1"></i>生成场次
+          </button>
+          <a href="{{ url_for('competition.detail', cid=comp.id) }}" class="btn btn-outline-secondary ms-2">取消</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

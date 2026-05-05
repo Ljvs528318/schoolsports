@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}修改场次信息{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-clock me-2"></i>设置比赛时间 / 场地
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-3 text-muted small">
+          {{ match.home_reg.team_name if match.home_reg else '?' }}
+          VS {{ match.away_reg.team_name if match.away_reg else '?' }}
+          &nbsp;·&nbsp; {{ match.stage_label }}
+        </div>
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">比赛时间</label>
+            <input type="datetime-local" name="scheduled_at" class="form-control"
+                   value="{{ match.scheduled_at.strftime('%Y-%m-%dT%H:%M') if match.scheduled_at else '' }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">比赛场地</label>
+            <input type="text" name="venue" class="form-control"
+                   value="{{ match.venue or '' }}" placeholder="比赛场地">
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="{{ url_for('schedule.schedule_view', cid=match.competition_id) }}" class="btn btn-outline-secondary">取消</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

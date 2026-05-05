@@ -1,0 +1,74 @@
+/* pages/competitions/competitions.wxss */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.filter-btn {
+  font-size: 26rpx;
+  color: #1890ff;
+  padding: 8rpx 20rpx;
+  border: 2rpx solid #1890ff;
+  border-radius: 8rpx;
+}
+
+.competition-card {
+  margin-bottom: 20rpx;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.card-info {
+  padding: 12rpx 0;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 8rpx;
+  font-size: 26rpx;
+}
+
+.info-label {
+  color: #999;
+  width: 100rpx;
+}
+
+.info-value {
+  color: #666;
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.load-more {
+  text-align: center;
+  padding: 30rpx;
+}

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}首页 - 校园体育赛事{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="rounded-3 mb-4 p-5 text-white"
+     style="background:linear-gradient(135deg,#1565c0 0%,#0d47a1 60%,#f57c00 100%)">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <h1 class="display-5 fw-bold"><i class="bi bi-trophy-fill me-2" style="color:#fdd835"></i>校园体育赛事管理</h1>
+      <p class="lead mb-3">报名参赛、查看赛程、实时积分——一站式体育赛事服务平台</p>
+      <a href="{{ url_for('competition.list_comps') }}" class="btn btn-warning btn-lg fw-bold me-2">
+        <i class="bi bi-calendar-event me-1"></i>浏览赛事
+      </a>
+      {% if not current_user.is_authenticated %}
+      <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">立即注册</a>
+      {% endif %}
+    </div>
+    <div class="col-md-4 text-center d-none d-md-block">
+      <i class="bi bi-award" style="font-size:7rem;opacity:.3"></i>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- 正在进行的赛事 -->
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-lightning-charge-fill text-warning me-2"></i>正在进行 / 报名中</span>
+        <a href="{{ url_for('competition.list_comps') }}" class="btn btn-sm btn-outline-primary">查看全部</a>
+      </div>
+      <div class="card-body">
+        {% if comps %}
+        <div class="row g-3">
+          {% for c in comps %}
+          <div class="col-md-6">
+            <div class="card border-0 bg-light h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="badge text-white badge-{{ c.status }}">{{ c.status_label }}</span>
+                  <small class="text-muted">{{ c.sport_type }}</small>
+                </div>
+                <h6 class="fw-bold mb-1">
+                  <a href="{{ url_for('competition.detail', cid=c.id) }}" class="text-decoration-none text-dark">{{ c.name }}</a>
+                </h6>
+                <div class="small text-muted mb-2">
+                  <i class="bi bi-people me-1"></i>{{ c.registrations.filter_by(status='approved').count() }}/{{ c.max_teams }} 队
+                  &nbsp;<i class="bi bi-geo-alt me-1"></i>{{ c.venue or '待定' }}
+                </div>
+                <div class="small text-muted">
+                  {% if c.start_date %}<i class="bi bi-calendar me-1"></i>{{ c.start_date.strftime('%m/%d') }}{% endif %}
+                  &nbsp;{{ c.format_label }}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4"><i class="bi bi-calendar-x" style="font-size:3rem"></i><br>暂无进行中的赛事</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 公告 + 快速入口 -->
+  <div class="col-lg-4">
+    <!-- 公告 -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-megaphone-fill text-danger me-2"></i>系统公告</div>
+      <div class="card-body p-0">
+        {% if announcements %}
+        <ul class="list-group list-group-flush">
+          {% for a in announcements %}
+          <li class="list-group-item py-2 px-3">
+            {% if a.is_pinned %}<i class="bi bi-pin-fill text-danger me-1"></i>{% endif %}
+            <span class="small">{{ a.title }}</span>
+            <div class="text-muted" style="font-size:.75rem">{{ a.created_at.strftime('%Y-%m-%d') }}</div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center py-3 small">暂无公告</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="card">
+      <div class="card-header"><i class="bi bi-grid me-2"></i>快捷入口</div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="{{ url_for('competition.list_comps', status='open') }}" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-pencil-square me-1"></i>我要报名
+          </a>
+          <a href="{{ url_for('competition.list_comps', status='ongoing') }}" class="btn btn-outline-warning btn-sm">
+            <i class="bi bi-play-circle me-1"></i>进行中赛事
+          </a>
+          <a href="{{ url_for('competition.list_comps', status='finished') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-archive me-1"></i>历史赛事
+          </a>
+          {% if current_user.is_teacher %}
+          <hr class="my-1">
+          <a href="{{ url_for('competition.create') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i>创建新赛事
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 历史赛事 -->
+{% if finished %}
+<div class="card mt-4">
+  <div class="card-header"><i class="bi bi-archive me-2"></i>近期结束赛事</div>
+  <div class="card-body">
+    <div class="row g-3">
+      {% for c in finished %}
+      <div class="col-md-3">
+        <a href="{{ url_for('competition.detail', cid=c.id) }}" class="text-decoration-none">
+          <div class="card border-0 bg-light text-center p-3">
+            <i class="bi bi-trophy" style="font-size:2rem;color:#f57c00"></i>
+            <div class="fw-bold mt-1 small">{{ c.name }}</div>
+            <div class="text-muted" style="font-size:.75rem">{{ c.sport_type }}</div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

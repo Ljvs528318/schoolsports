@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}录入成绩{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-7 col-lg-5">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-pencil me-2 text-primary"></i>
+        录入比赛成绩 · {{ comp.name }}
+      </div>
+      <div class="card-body p-4">
+        <!-- 对阵信息 -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="text-center flex-fill">
+            <div class="fw-bold fs-5">{{ match.home_reg.team_name if match.home_reg else '未知' }}</div>
+            {% if match.home_reg and match.home_reg.user %}
+            <small class="text-muted">{{ match.home_reg.user.class_name or '' }}</small>
+            {% endif %}
+          </div>
+          <div class="text-muted fw-bold fs-4 px-3">VS</div>
+          <div class="text-center flex-fill">
+            <div class="fw-bold fs-5">{{ match.away_reg.team_name if match.away_reg else '未知' }}</div>
+            {% if match.away_reg and match.away_reg.user %}
+            <small class="text-muted">{{ match.away_reg.user.class_name or '' }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="badge bg-info text-dark mb-3">{{ match.stage_label }}</div>
+
+        <form method="post">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">
+                {{ match.home_reg.team_name if match.home_reg else '主队' }} 得分
+              </label>
+              <input type="number" name="home_score" class="form-control form-control-lg text-center"
+                     value="{{ match.home_score if match.home_score is not none else '' }}"
+                     min="0" required autofocus>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">
+                {{ match.away_reg.team_name if match.away_reg else '客队' }} 得分
+              </label>
+              <input type="number" name="away_score" class="form-control form-control-lg text-center"
+                     value="{{ match.away_score if match.away_score is not none else '' }}"
+                     min="0" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">比赛场地</label>
+              <input type="text" name="venue" class="form-control"
+                     value="{{ match.venue or comp.venue or '' }}" placeholder="比赛场地">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">备注（可选）</label>
+              <textarea name="note" class="form-control" rows="2"
+                        placeholder="附加说明（加时、点球等）">{{ match.note or '' }}</textarea>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary fw-bold px-4">
+              <i class="bi bi-check-circle me-1"></i>保存成绩
+            </button>
+            <a href="{{ url_for('schedule.schedule_view', cid=comp.id) }}" class="btn btn-outline-secondary">返回</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

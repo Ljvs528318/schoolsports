@@ -1,0 +1,41 @@
+<!--pages/admin-draw/admin-draw.wxml-->
+<view class="container">
+  <view class="section">
+    <view class="section-title">选择赛事</view>
+    <picker mode="selector" range="{{competitions}}" range-key="name" bindchange="onCompetitionChange">
+      <view class="picker">
+        {{selectedCompetition ? selectedCompetition.name : '请选择赛事'}}
+      </view>
+    </picker>
+  </view>
+
+  <view wx:if="{{selectedCompetition}}">
+    <view class="info-card card">
+      <text class="info-title">淘汰赛抽签</text>
+      <text class="info-desc">将已审核通过的报名进行随机抽签分组</text>
+      <view class="info-detail">
+        <text>已通过报名: {{approvedCount}} 个</text>
+      </view>
+    </view>
+
+    <button class="btn-draw" bindtap="performDraw" disabled="{{approvedCount < 2}}">
+      开始抽签
+    </button>
+
+    <view class="section" wx:if="{{drawResult.length > 0}}">
+      <view class="section-title">抽签结果</view>
+      <view class="match-item card" wx:for="{{drawResult}}" wx:key="index">
+        <text class="match-num">第 {{index + 1}} 场</text>
+        <view class="match-teams">
+          <text class="team">{{item.home}}</text>
+          <text class="vs">VS</text>
+          <text class="team">{{item.away}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!selectedCompetition}}">
+    <text>请先选择赛事</text>
+  </view>
+</view>

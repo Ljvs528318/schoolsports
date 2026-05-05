@@ -1,0 +1,55 @@
+<!--pages/admin/admin.wxml-->
+<view class="container">
+  <view class="admin-header">
+    <text class="admin-title">管理后台</text>
+    <text class="admin-desc">赛事管理功能</text>
+  </view>
+
+  <view class="manage-grid">
+    <!-- 审核报名 -->
+    <view class="manage-card" bindtap="goToReview">
+      <view class="card-icon">📋</view>
+      <view class="card-title">审核报名</view>
+      <view class="card-desc">审核学生报名申请</view>
+    </view>
+
+    <!-- 分组管理 -->
+    <view class="manage-card" bindtap="goToGroup">
+      <view class="card-icon">📊</view>
+      <view class="card-title">分组管理</view>
+      <view class="card-desc">设置小组赛分组</view>
+    </view>
+
+    <!-- 抽签 -->
+    <view class="manage-card" bindtap="goToDraw">
+      <view class="card-icon">🎲</view>
+      <view class="card-title">抽签</view>
+      <view class="card-desc">淘汰赛抽签分组</view>
+    </view>
+
+    <!-- 录入成绩 -->
+    <view class="manage-card" bindtap="goToScores">
+      <view class="card-icon">⚽</view>
+      <view class="card-title">录入成绩</view>
+      <view class="card-desc">录入比赛成绩</view>
+    </view>
+  </view>
+
+  <!-- 赛事列表 -->
+  <view class="section">
+    <view class="section-title">赛事列表</view>
+    <view class="comp-item card" wx:for="{{competitions}}" wx:key="id" bindtap="selectCompetition" data-id="{{item.id}}">
+      <view class="comp-info">
+        <text class="comp-name">{{item.name}}</text>
+        <text class="comp-status tag tag-{{item.status === 'active' ? 'success' : (item.status === 'pending' ? 'warning' : 'default')}}">
+          {{item.status === 'active' ? '进行中' : (item.status === 'pending' ? '未开始' : (item.status === 'finished' ? '已结束' : item.status))}}
+        </text>
+      </view>
+      <text class="comp-type">{{item.type === 'team' ? '团体赛' : '个人赛'}}</text>
+    </view>
+
+    <view class="empty" wx:if="{{competitions.length === 0}}">
+      <text class="empty-text">暂无赛事</text>
+    </view>
+  </view>
+</view>

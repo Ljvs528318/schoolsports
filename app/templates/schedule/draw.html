@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}抽签分组 - {{ comp.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-shuffle me-2 text-success"></i>抽签分组 · {{ comp.name }}
+      </div>
+      <div class="card-body p-4">
+        <div class="alert alert-info small">
+          <i class="bi bi-info-circle me-1"></i>
+          已审核通过 <strong>{{ approved|length }}</strong> 支队伍/参赛者。
+          请设置分组数量后点击抽签。
+        </div>
+
+        {% if approved %}
+        <!-- 已报名名单预览 -->
+        <h6 class="fw-semibold mb-2">已通过报名（{{ approved|length }} 人）</h6>
+        <div class="row g-2 mb-4">
+          {% for r in approved %}
+          <div class="col-6 col-md-4 col-lg-3">
+            <span class="badge bg-light text-dark border w-100 text-start p-2">
+              <i class="bi bi-person me-1"></i>{{ r.team_name or r.user.real_name or r.user.username }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <form method="post">
+          <div class="row g-3 align-items-end mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">分成几组</label>
+              <input type="number" name="num_groups" class="form-control"
+                     min="1" max="{{ approved|length }}" value="{% if approved|length <= 8 %}1{% else %}2{% endif %}">
+              <div class="form-text">
+                积分赛通常 1~4 组；淘汰赛通常不分组（填1）
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">抽签方式</label>
+              <select name="action" class="form-select">
+                <option value="random">随机抽签</option>
+                <option value="manual">按报名顺序（不打乱）</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <button type="submit" class="btn btn-success w-100 fw-bold">
+                <i class="bi bi-shuffle me-1"></i>开始抽签
+              </button>
+            </div>
+          </div>
+        </form>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-person-x" style="font-size:3rem"></i>
+          <h6 class="mt-2">暂无通过审核的报名</h6>
+          <a href="{{ url_for('competition.manage_registrations', cid=comp.id) }}" class="btn btn-warning btn-sm mt-2">
+            前往报名管理审核
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

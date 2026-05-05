@@ -1,0 +1,119 @@
+<!--pages/competition-detail/competition-detail.wxml-->
+<view class="container">
+  <view class="detail-card card">
+    <view class="detail-header">
+      <text class="name">{{competition.name}}</text>
+      <text class="tag tag-{{competition.status === 'open' ? 'success' : (competition.status === 'ongoing' ? 'warning' : (competition.status === 'finished' ? 'info' : 'default'))}}">{{competition.status_label}}</text>
+    </view>
+
+    <view class="detail-info">
+      <view class="info-row">
+        <text class="label">项目类型:</text>
+        <text class="value">{{competition.sport_type || '未设置'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">参赛形式:</text>
+        <text class="value">{{competition.comp_type_label}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">赛制:</text>
+        <text class="value">{{competition.format_label}}</text>
+      </view>
+      <view class="info-row" wx:if="{{competition.venue}}">
+        <text class="label">地点:</text>
+        <text class="value">{{competition.venue}}</text>
+      </view>
+      <view class="info-row" wx:if="{{competition.team_size > 1}}">
+        <text class="label">每队人数:</text>
+        <text class="value">{{competition.team_size}}人</text>
+      </view>
+      <view class="info-row">
+        <text class="label">积分规则:</text>
+        <text class="value">胜{{competition.win_points || 3}} 平{{competition.draw_points || 1}} 负{{competition.loss_points || 0}}</text>
+      </view>
+    </view>
+
+    <view class="detail-desc" wx:if="{{competition.description}}">
+      <text class="desc-title">赛事描述</text>
+      <text class="desc-content">{{competition.description}}</text>
+    </view>
+
+    <view class="detail-time">
+      <view class="time-row" wx:if="{{competition.reg_start}}">
+        <text class="label">报名开始:</text>
+        <text class="value">{{competition.reg_start}}</text>
+      </view>
+      <view class="time-row" wx:if="{{competition.reg_end}}">
+        <text class="label">报名截止:</text>
+        <text class="value">{{competition.reg_end}}</text>
+      </view>
+      <view class="time-row" wx:if="{{competition.start_date}}">
+        <text class="label">开始时间:</text>
+        <text class="value">{{competition.start_date}}</text>
+      </view>
+      <view class="time-row" wx:if="{{competition.end_date}}">
+        <text class="label">结束时间:</text>
+        <text class="value">{{competition.end_date}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最终结果区域 -->
+  <view class="final-result card" wx:if="{{competition.status === 'finished' && finalResult}}">
+    <view class="final-title">🏆 最终结果</view>
+
+    <!-- 淘汰赛冠军 -->
+    <view class="champion-section" wx:if="{{finalResult.champion}}">
+      <view class="champion-row">
+        <text class="medal gold">🥇</text>
+        <text class="champion-name">{{finalResult.champion}}</text>
+        <text class="champion-score" wx:if="{{finalResult.final_score}}">{{finalResult.final_score}}</text>
+      </view>
+      <view class="runner-up-row" wx:if="{{finalResult.runner_up}}">
+        <text class="medal silver">🥈</text>
+        <text class="runner-up-name">{{finalResult.runner_up}}</text>
+      </view>
+    </view>
+
+    <!-- 循环赛排名 -->
+    <view class="league-results" wx:if="{{finalResult.groups}}">
+      <view class="league-group" wx:for="{{finalResult.groups}}" wx:key="group_name" wx:for-item="group">
+        <view class="group-name" wx:if="{{finalResult.groups.length > 1}}">{{group.group_name}}</view>
+        <view class="rank-row" wx:for="{{group.top3}}" wx:key="rank" wx:for-item="item">
+          <text class="medal">{{item.rank === 1 ? '🥇' : (item.rank === 2 ? '🥈' : '🥉')}}</text>
+          <text class="rank-name">{{item.team_name}}</text>
+          <text class="rank-points">{{item.points}}分</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="actions">
+    <button class="btn-primary" wx:if="{{canRegister}}" bindtap="handleRegister">
+      立即报名
+    </button>
+
+    <button class="btn-secondary" wx:if="{{hasRegistered}}" bindtap="viewMyRegistration">
+      查看我的报名
+    </button>
+
+    <view class="reg-status" wx:if="{{userRegistration}}">
+      <text class="status-text">报名状态: {{userRegistration.status === 'pending' ? '待审核' : (userRegistration.status === 'approved' ? '已通过' : '已拒绝')}}</text>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-actions" wx:if="{{competition.status === 'ongoing' || competition.status === 'finished'}}">
+    <view class="quick-btn" bindtap="viewSchedule">
+      <text>📅 查看赛程</text>
+    </view>
+    <view class="quick-btn" bindtap="viewStandings" wx:if="{{competition.format !== 'knockout'}}">
+      <text>🏆 积分榜</text>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

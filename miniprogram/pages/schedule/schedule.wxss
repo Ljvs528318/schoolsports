@@ -1,0 +1,190 @@
+/* pages/schedule/schedule.wxss */
+.header {
+  margin-bottom: 30rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.stage-section {
+  margin-bottom: 40rpx;
+}
+
+/* 阶段标题基础样式 */
+.stage-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #1890ff;
+  margin-bottom: 20rpx;
+  padding-left: 16rpx;
+  border-left: 8rpx solid #1890ff;
+}
+
+/* 小组赛 */
+.stage-group {
+  color: #1890ff;
+  border-left-color: #1890ff;
+}
+
+/* 16强 */
+.stage-r16 {
+  color: #722ed1;
+  border-left-color: #722ed1;
+}
+
+/* 8强 */
+.stage-r8 {
+  color: #eb2f96;
+  border-left-color: #eb2f96;
+}
+
+/* 四分之一决赛 */
+.stage-qf {
+  color: #fa8c16;
+  border-left-color: #fa8c16;
+}
+
+/* 半决赛 */
+.stage-sf {
+  color: #faad14;
+  border-left-color: #faad14;
+  font-size: 34rpx;
+}
+
+/* 三四名决赛 */
+.stage-third {
+  color: #13c2c2;
+  border-left-color: #13c2c2;
+}
+
+/* 决赛 */
+.stage-final {
+  color: #ff4d4f;
+  border-left-color: #ff4d4f;
+  font-size: 36rpx;
+}
+
+.match-card {
+  margin-bottom: 20rpx;
+}
+
+/* 决赛和三四名比赛卡片高亮 */
+.match-highlight {
+  border: 2rpx solid #ff4d4f;
+  box-shadow: 0 4rpx 16rpx rgba(255, 77, 79, 0.15);
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.match-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20rpx 0;
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.team.winner .team-name {
+  color: #1890ff;
+  font-weight: bold;
+}
+
+.team.winner .score {
+  color: #ff4d4f;
+}
+
+.team-name {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.score {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #1890ff;
+}
+
+.winner-badge {
+  position: absolute;
+  top: -8rpx;
+  right: 10rpx;
+  background: #52c41a;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+}
+
+.vs {
+  font-size: 28rpx;
+  color: #999;
+  padding: 0 20rpx;
+}
+
+.champion-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fff7e6, #ffe7ba);
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin-top: 16rpx;
+}
+
+.champion-icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.champion-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #fa8c16;
+}
+
+.third-place-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e6fffb, #b5f5ec);
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin-top: 16rpx;
+}
+
+.third-icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.third-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #13c2c2;
+}
+
+.match-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
+  font-size: 24rpx;
+  color: #999;
+}

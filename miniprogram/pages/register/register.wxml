@@ -1,0 +1,97 @@
+<!--pages/register/register.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">报名</text>
+  </view>
+
+  <!-- 赛事信息 -->
+  <view class="competition-info card">
+    <text class="comp-name">{{competition.name}}</text>
+    <view class="comp-meta">
+      <text class="tag tag-info">{{competition.comp_type_label}}</text>
+      <text class="tag tag-default">{{competition.format_label}}</text>
+    </view>
+  </view>
+
+  <!-- 个人赛：确认报名 -->
+  <view class="confirm-section" wx:if="{{!isTeam}}">
+    <view class="confirm-icon">📋</view>
+    <text class="confirm-title">确认报名</text>
+    <text class="confirm-desc">确认以本人身份报名该赛事吗？</text>
+    <view class="confirm-info card">
+      <view class="info-row">
+        <text class="info-label">姓名：</text>
+        <text class="info-value">{{captain.name}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">学号：</text>
+        <text class="info-value">{{captain.student_id}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">班级：</text>
+        <text class="info-value">{{captain.class_name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 团体赛：队名 -->
+  <view class="form-section" wx:if="{{isTeam}}">
+    <view class="form-item">
+      <text class="label">队名 <text class="required">*</text></text>
+      <input class="input" placeholder="请输入队名" value="{{team_name}}" bindinput="onTeamNameInput" />
+    </view>
+  </view>
+
+  <!-- 个人信息/队长信息 -->
+  <view class="captain-section card">
+    <view class="section-title">{{isTeam ? '队长信息' : '个人信息'}}</view>
+    <view class="form-item">
+      <text class="label">学号 <text class="required">*</text></text>
+      <input class="input" placeholder="请输入学号" value="{{captain.student_id}}" bindinput="onCaptainInput" data-field="student_id" />
+    </view>
+    <view class="form-item">
+      <text class="label">班级 <text class="required">*</text></text>
+      <input class="input" placeholder="请输入班级" value="{{captain.class_name}}" bindinput="onCaptainInput" data-field="class_name" />
+    </view>
+    <view class="form-item">
+      <text class="label">姓名 <text class="required">*</text></text>
+      <input class="input" placeholder="请输入姓名" value="{{captain.name}}" bindinput="onCaptainInput" data-field="name" />
+    </view>
+  </view>
+
+  <!-- 团体赛：队员列表 -->
+  <view class="members-section" wx:if="{{isTeam}}">
+    <view class="section-header">
+      <text class="section-title">队员信息</text>
+      <text class="member-count">已添加 {{members.length}}/{{maxMembers}} 人</text>
+    </view>
+
+    <view class="member-card card" wx:for="{{members}}" wx:key="index">
+      <view class="member-header">
+        <text class="member-index">队员 {{index + 1}}</text>
+        <view class="remove-btn" bindtap="removeMember" data-index="{{index}}">删除</view>
+      </view>
+      <view class="form-item">
+        <text class="label">学号 <text class="required">*</text></text>
+        <input class="input" placeholder="请输入学号" value="{{item.student_id}}" bindinput="onMemberInput" data-index="{{index}}" data-field="student_id" />
+      </view>
+      <view class="form-item">
+        <text class="label">班级 <text class="required">*</text></text>
+        <input class="input" placeholder="请输入班级" value="{{item.class_name}}" bindinput="onMemberInput" data-index="{{index}}" data-field="class_name" />
+      </view>
+      <view class="form-item">
+        <text class="label">姓名 <text class="required">*</text></text>
+        <input class="input" placeholder="请输入姓名" value="{{item.name}}" bindinput="onMemberInput" data-index="{{index}}" data-field="name" />
+      </view>
+    </view>
+
+    <button class="btn-add" bindtap="addMember" wx:if="{{members.length < maxMembers}}">+ 添加队员</button>
+  </view>
+
+  <!-- 提交按钮 -->
+  <button class="btn-primary submit-btn" bindtap="submit" loading="{{submitting}}">提交报名</button>
+
+  <view class="tips" wx:if="{{isTeam}}">
+    <text class="tips-text">提示：队长信息已自动填写，请补充完整。队员信息需逐一填写。</text>
+  </view>
+</view>

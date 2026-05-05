@@ -1,0 +1,55 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/competitions/competitions",
+    "pages/competition-detail/competition-detail",
+    "pages/register/register",
+    "pages/schedule/schedule",
+    "pages/standings/standings",
+    "pages/profile/profile",
+    "pages/edit-profile/edit-profile",
+    "pages/change-password/change-password",
+    "pages/admin/admin",
+    "pages/admin-review/admin-review",
+    "pages/admin-group/admin-group",
+    "pages/admin-draw/admin-draw",
+    "pages/admin-scores/admin-scores"
+  ],
+  "window": {
+    "navigationBarTitleText": "校园体育",
+    "navigationBarBackgroundColor": "#1890ff",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1890ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/competitions/competitions",
+        "text": "赛事",
+        "iconPath": "images/trophy.png",
+        "selectedIconPath": "images/trophy-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/user.png",
+        "selectedIconPath": "images/user-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

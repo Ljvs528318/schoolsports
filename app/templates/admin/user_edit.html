@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "admin/_sidebar.html" import admin_sidebar %}
+{% block title %}{{ '编辑' if user else '新建' }}用户{% endblock %}
+{% block sidebar %}{{ admin_sidebar() }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-person-gear me-2"></i>{{ '编辑用户' if user else '新建用户' }}</div>
+      <div class="card-body p-4">
+        <form method="post">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">真实姓名</label>
+              <input type="text" name="real_name" class="form-control" value="{{ user.real_name or '' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">邮箱</label>
+              <input type="email" name="email" class="form-control" value="{{ user.email or '' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">学号/工号</label>
+              <input type="text" name="student_id" class="form-control" value="{{ user.student_id or '' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">班级/部门</label>
+              <input type="text" name="class_name" class="form-control" value="{{ user.class_name or '' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">手机号</label>
+              <input type="text" name="phone" class="form-control" value="{{ user.phone or '' }}">
+            </div>
+            <div class="col-3">
+              <label class="form-label fw-semibold">角色</label>
+              <select name="role" class="form-select">
+                <option value="student" {% if user.role=='student' %}selected{% endif %}>学生</option>
+                <option value="teacher" {% if user.role=='teacher' %}selected{% endif %}>教师</option>
+                <option value="admin"   {% if user.role=='admin'   %}selected{% endif %}>管理员</option>
+              </select>
+            </div>
+            <div class="col-3 d-flex align-items-end">
+              <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input" name="is_active" id="is_active"
+                       {% if user.is_active_user %}checked{% endif %}>
+                <label class="form-check-label" for="is_active">启用账号</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">重置密码（留空不修改）</label>
+              <input type="password" name="new_password" class="form-control" placeholder="新密码">
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="{{ url_for('admin.user_list') }}" class="btn btn-outline-secondary">取消</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

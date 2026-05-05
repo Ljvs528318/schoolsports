@@ -1,0 +1,51 @@
+<!--pages/admin-scores/admin-scores.wxml-->
+<view class="container">
+  <view class="section">
+    <view class="section-title">选择赛事</view>
+    <picker mode="selector" range="{{competitions}}" range-key="name" bindchange="onCompetitionChange">
+      <view class="picker">
+        {{selectedCompetition ? selectedCompetition.name : '请选择赛事'}}
+      </view>
+    </picker>
+  </view>
+
+  <view wx:if="{{selectedCompetition}}">
+    <view class="filter-tabs">
+      <view class="tab {{filter === 'all' ? 'active' : ''}}" bindtap="setFilter" data-filter="all">全部</view>
+      <view class="tab {{filter === 'pending' ? 'active' : ''}}" bindtap="setFilter" data-filter="pending">未开始</view>
+      <view class="tab {{filter === 'ongoing' ? 'active' : ''}}" bindtap="setFilter" data-filter="ongoing">进行中</view>
+      <view class="tab {{filter === 'finished' ? 'active' : ''}}" bindtap="setFilter" data-filter="finished">已结束</view>
+    </view>
+
+    <view class="match-item card" wx:for="{{matches}}" wx:key="id">
+      <view class="match-info">
+        <view class="match-stage">{{item.stage_label}}</view>
+        <view class="match-teams">
+          <text class="team-name">{{item.home_team}}</text>
+          <view class="match-score" wx:if="{{item.status === 'finished'}}">
+            <text class="score">{{item.home_score}}</text>
+            <text class="score-sep">:</text>
+            <text class="score">{{item.away_score}}</text>
+          </view>
+          <view class="score-input" wx:else>
+            <input type="number" value="{{item.home_score}}" bindinput="onScoreInput" data-match-id="{{item.id}}" data-team="home" />
+            <text class="score-sep">:</text>
+            <input type="number" value="{{item.away_score}}" bindinput="onScoreInput" data-match-id="{{item.id}}" data-team="away" />
+          </view>
+          <text class="team-name">{{item.away_team}}</text>
+        </view>
+        <text class="match-venue" wx:if="{{item.venue}}">{{item.venue}}</text>
+      </view>
+
+      <button class="btn-save" wx:if="{{item.status !== 'finished'}}" bindtap="saveScore" data-match-id="{{item.id}}">保存</button>
+    </view>
+
+    <view class="empty" wx:if="{{matches.length === 0}}">
+      <text>暂无比赛</text>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!selectedCompetition}}">
+    <text>请先选择赛事</text>
+  </view>
+</view>

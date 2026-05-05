@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "admin/_sidebar.html" import admin_sidebar %}
+{% block title %}用户管理{% endblock %}
+{% block sidebar %}{{ admin_sidebar() }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0"><i class="bi bi-people me-2 text-primary"></i>用户管理</h4>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form class="row g-2" method="get">
+      <div class="col-md-4">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="搜索姓名/用户名/学号" value="{{ q }}">
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-search"></i> 搜索</button>
+        <a href="{{ url_for('admin.user_list') }}" class="btn btn-sm btn-outline-secondary">清除</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>用户名</th><th>真实姓名</th><th>学号/工号</th>
+          <th>班级/部门</th><th>角色</th><th>状态</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users.items %}
+        <tr>
+          <td class="text-muted small">{{ u.id }}</td>
+          <td class="fw-semibold">{{ u.username }}</td>
+          <td>{{ u.real_name or '-' }}</td>
+          <td>{{ u.student_id or '-' }}</td>
+          <td>{{ u.class_name or '-' }}</td>
+          <td>
+            <span class="badge bg-{% if u.role=='admin' %}danger{% elif u.role=='teacher' %}warning text-dark{% else %}secondary{% endif %}">
+              {{ {'admin':'管理员','teacher':'教师','student':'学生'}.get(u.role, u.role) }}
+            </span>
+          </td>
+          <td>
+            {% if u.is_active_user %}<span class="badge bg-success">正常</span>
+            {% else %}<span class="badge bg-secondary">禁用</span>{% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('admin.user_edit', uid=u.id) }}" class="btn btn-sm btn-outline-primary py-0">编辑</a>
+            {% if u.id != current_user.id %}
+            <form method="post" action="{{ url_for('admin.user_delete', uid=u.id) }}" class="d-inline"
+                  onsubmit="return confirm('确认删除用户 {{ u.username }} 吗？')">
+              <button class="btn btn-sm btn-outline-danger py-0">删除</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <!-- 分页 -->
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <small class="text-muted">共 {{ users.total }} 条</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if users.has_prev %}
+        <li class="page-item"><a class="page-link" href="{{ url_for('admin.user_list', page=users.prev_num, q=q) }}">上一页</a></li>
+        {% endif %}
+        <li class="page-item active"><a class="page-link" href="#">{{ users.page }}/{{ users.pages }}</a></li>
+        {% if users.has_next %}
+        <li class="page-item"><a class="page-link" href="{{ url_for('admin.user_list', page=users.next_num, q=q) }}">下一页</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
+{% endblock %}

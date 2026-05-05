@@ -1,0 +1,52 @@
+<!--pages/competitions/competitions.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">赛事列表</text>
+    <view class="filter">
+      <picker mode="selector" range="{{statusOptions}}" range-key="label" value="{{statusIndex}}" bindchange="onStatusChange">
+        <text class="filter-btn">{{statusOptions[statusIndex].label}}</text>
+      </picker>
+    </view>
+  </view>
+
+  <view class="competition-list">
+    <view class="competition-card card" wx:for="{{competitions}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="card-header">
+        <text class="name">{{item.name}}</text>
+        <text class="tag tag-{{item.status === 'open' ? 'success' : (item.status === 'ongoing' ? 'warning' : 'info')}}">{{item.status_label}}</text>
+      </view>
+
+      <view class="card-info">
+        <view class="info-row">
+          <text class="info-label">类型:</text>
+          <text class="info-value">{{item.comp_type_label}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">赛制:</text>
+          <text class="info-value">{{item.format_label}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.venue}}">
+          <text class="info-label">地点:</text>
+          <text class="info-value">{{item.venue}}</text>
+        </view>
+      </view>
+
+      <view class="card-footer">
+        <text class="date" wx:if="{{item.start_date}}">开始: {{item.start_date}}</text>
+        <text class="registrations" wx:if="{{item.reg_count}}">已报名: {{item.reg_count}}队</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{competitions.length === 0 && !loading}}">
+    <text class="empty-text">暂无赛事</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="load-more" wx:if="{{hasMore}}">
+    <button size="mini" bindtap="loadMore" loading="{{loadingMore}}">加载更多</button>
+  </view>
+</view>

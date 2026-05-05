@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}报名 - {{ comp.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-md-8 col-lg-7">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-pencil-square me-2 text-success"></i>报名参赛 · {{ comp.name }}
+      </div>
+      <div class="card-body p-4">
+        <div class="alert alert-info small mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          {{ comp.format_label }} &nbsp;|&nbsp;
+          {% if comp.comp_type == 'individual' %}
+            个人赛
+          {% elif comp.comp_type == 'team' %}
+            团体赛（每队{{ comp.team_size }}人）
+          {% else %}
+            混合赛
+          {% endif %}
+          &nbsp;|&nbsp; 报名后需等待管理员审核
+        </div>
+
+        <form method="post" enctype="multipart/form-data" id="regForm">
+          <!-- 队名/参赛名 -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              {% if comp.comp_type == 'individual' %}参赛名称{% else %}队伍名称{% endif %}
+            </label>
+            <input type="text" name="team_name" class="form-control"
+                   value="{{ current_user.real_name or current_user.username }}"
+                   placeholder="{% if comp.comp_type=='individual' %}您的参赛名{% else %}队伍名称{% endif %}">
+          </div>
+
+          <!-- ─── 队长（报名人自身）─── -->
+          <div class="card mb-3 border-primary">
+            <div class="card-header bg-primary bg-opacity-10 py-2">
+              <i class="bi bi-person-check me-1 text-primary"></i>
+              <strong>队长 / 报名人</strong>
+              <span class="badge bg-primary ms-2">本人</span>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">学号</label>
+                  <input type="text" name="captain_student_id" class="form-control form-control-sm"
+                         value="{{ current_user.student_id or '' }}" placeholder="请输入学号">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">班级</label>
+                  <input type="text" name="captain_class_name" class="form-control form-control-sm"
+                         value="{{ current_user.class_name or '' }}" placeholder="请输入班级">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">姓名</label>
+                  <input type="text" class="form-control form-control-sm" disabled
+                         value="{{ current_user.real_name or current_user.username }}">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">相片</label>
+                  <input type="file" name="captain_photo" class="form-control form-control-sm"
+                         accept="image/png,image/jpeg,image/gif,image/webp">
+                  {% if current_user.avatar %}
+                  <div class="mt-1"><img src="{{ url_for('static', filename=current_user.avatar) }}" alt="当前头像" style="max-height:50px" class="rounded"></div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── 队员信息区域（团体赛/混合赛显示）─── -->
+          {% if comp.comp_type in ('team', 'mixed') %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label fw-semibold mb-0">
+                <i class="bi bi-people me-1"></i>队员信息
+              </label>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="addMemberBtn">
+                <i class="bi bi-plus-circle me-1"></i>添加队员
+              </button>
+            </div>
+            <div class="text-muted small mb-2">
+              共需 {{ comp.team_size }} 人（含队长），还需添加 <span id="remainCount">{{ comp.team_size - 1 }}</span> 名队员
+            </div>
+            <div id="membersContainer">
+              <!-- 动态添加的队员行 -->
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- 隐藏字段：队员数量 -->
+          <input type="hidden" name="member_count" id="memberCount" value="0">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">备注</label>
+            <textarea name="note" class="form-control" rows="2" placeholder="可选：备注信息"></textarea>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success fw-bold">
+              <i class="bi bi-check-circle me-1"></i>提交报名
+            </button>
+            <a href="{{ url_for('competition.detail', cid=comp.id) }}" class="btn btn-outline-secondary">返回</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let memberIdx = 0;
+  const container = document.getElementById('membersContainer');
+  const addBtn = document.getElementById('addMemberBtn');
+  const countInput = document.getElementById('memberCount');
+  const remainSpan = document.getElementById('remainCount');
+  {% if comp.comp_type in ('team', 'mixed') %}
+  const maxMembers = {{ comp.team_size - 1 }};
+  {% else %}
+  const maxMembers = 0;
+  {% endif %}
+
+  function updateRemain() {
+    if (remainSpan) {
+      remainSpan.textContent = Math.max(0, maxMembers - memberIdx);
+    }
+  }
+
+  function addMember() {
+    if (maxMembers > 0 && memberIdx >= maxMembers) {
+      alert('已达到最大队员数量');
+      return;
+    }
+    memberIdx++;
+    countInput.value = memberIdx;
+
+    const card = document.createElement('div');
+    card.className = 'card mb-2 border-info member-card';
+    card.id = 'member-card-' + memberIdx;
+    card.innerHTML = `
+      <div class="card-header bg-info bg-opacity-10 py-2 d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-person me-1 text-info"></i><strong>队员 ${memberIdx}</strong></span>
+        <button type="button" class="btn btn-sm btn-outline-danger py-0" onclick="removeMember(${memberIdx})">
+          <i class="bi bi-x-circle"></i> 移除
+        </button>
+      </div>
+      <div class="card-body py-2">
+        <div class="row g-2">
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold">学号 <span class="text-danger">*</span></label>
+            <input type="text" name="member_${memberIdx}_student_id" class="form-control form-control-sm"
+                   required placeholder="学号">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold">班级 <span class="text-danger">*</span></label>
+            <input type="text" name="member_${memberIdx}_class_name" class="form-control form-control-sm"
+                   required placeholder="班级">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold">姓名 <span class="text-danger">*</span></label>
+            <input type="text" name="member_${memberIdx}_name" class="form-control form-control-sm"
+                   required placeholder="姓名">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold">相片</label>
+            <input type="file" name="member_${memberIdx}_photo" class="form-control form-control-sm"
+                   accept="image/png,image/jpeg,image/gif,image/webp">
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+    updateRemain();
+  }
+
+  window.removeMember = function(idx) {
+    const card = document.getElementById('member-card-' + idx);
+    if (card) {
+      card.remove();
+      // 重新计算队员数
+      memberIdx = container.querySelectorAll('.member-card').length;
+      countInput.value = memberIdx;
+      // 重新编号
+      const cards = container.querySelectorAll('.member-card');
+      cards.forEach((c, i) => {
+        const num = i + 1;
+        c.querySelector('strong').textContent = '队员 ' + num;
+        // 更新 input name
+        c.querySelectorAll('input').forEach(inp => {
+          const oldName = inp.name;
+          if (oldName) {
+            inp.name = oldName.replace(/member_\d+_/, 'member_' + num + '_');
+          }
+        });
+      });
+      memberIdx = cards.length;
+      countInput.value = memberIdx;
+      updateRemain();
+    }
+  };
+
+  if (addBtn) {
+    addBtn.addEventListener('click', addMember);
+  }
+})();
+</script>
+{% endblock %}

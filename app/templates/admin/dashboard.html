@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "admin/_sidebar.html" import admin_sidebar %}
+{% block title %}管理控制台{% endblock %}
+{% block sidebar %}{{ admin_sidebar() }}{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4"><i class="bi bi-speedometer2 me-2 text-primary"></i>管理控制台</h4>
+
+<!-- 统计卡片 -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:2.5rem;color:#1565c0"><i class="bi bi-people-fill"></i></div>
+      <div class="fs-2 fw-bold">{{ stats.users }}</div>
+      <div class="text-muted small">注册用户</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:2.5rem;color:#43a047"><i class="bi bi-calendar-event-fill"></i></div>
+      <div class="fs-2 fw-bold">{{ stats.comps }}</div>
+      <div class="text-muted small">总赛事数</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:2.5rem;color:#f57c00"><i class="bi bi-play-circle-fill"></i></div>
+      <div class="fs-2 fw-bold">{{ stats.ongoing_comps }}</div>
+      <div class="text-muted small">进行中</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:2.5rem;color:#e53935"><i class="bi bi-hourglass-split"></i></div>
+      <div class="fs-2 fw-bold">{{ stats.pending_reg }}</div>
+      <div class="text-muted small">待审报名</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- 近期赛事 -->
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <span><i class="bi bi-calendar2 me-2"></i>近期赛事</span>
+        <a href="{{ url_for('competition.create') }}" class="btn btn-sm btn-primary">+ 创建</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr><th>赛事名称</th><th>类型</th><th>状态</th><th>操作</th></tr>
+          </thead>
+          <tbody>
+            {% for c in recent_comps %}
+            <tr>
+              <td><a href="{{ url_for('competition.detail', cid=c.id) }}" class="text-decoration-none fw-semibold">{{ c.name }}</a></td>
+              <td><span class="badge bg-secondary">{{ c.sport_type or '综合' }}</span></td>
+              <td><span class="badge text-white badge-{{ c.status }}">{{ c.status_label }}</span></td>
+              <td>
+                <a href="{{ url_for('competition.edit', cid=c.id) }}" class="btn btn-xs btn-outline-primary btn-sm py-0 px-2">编辑</a>
+                <a href="{{ url_for('competition.manage_registrations', cid=c.id) }}" class="btn btn-xs btn-outline-warning btn-sm py-0 px-2">报名</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新用户 -->
+  <div class="col-md-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <span><i class="bi bi-person-plus me-2"></i>新注册用户</span>
+        <a href="{{ url_for('admin.user_list') }}" class="btn btn-sm btn-outline-secondary">查看全部</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for u in recent_users %}
+        <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+          <div>
+            <i class="bi bi-person-circle me-2 text-muted"></i>
+            <span class="fw-semibold">{{ u.real_name or u.username }}</span>
+            <small class="text-muted ms-1">{{ u.class_name or '' }}</small>
+          </div>
+          <span class="badge bg-{% if u.role=='admin' %}danger{% elif u.role=='teacher' %}warning text-dark{% else %}light text-dark{% endif %}">
+            {{ {'admin':'管理员','teacher':'教师','student':'学生'}[u.role] }}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

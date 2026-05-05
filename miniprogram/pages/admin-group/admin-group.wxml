@@ -1,0 +1,49 @@
+<!--pages/admin-group/admin-group.wxml-->
+<view class="container">
+  <view class="section">
+    <view class="section-title">选择赛事</view>
+    <picker mode="selector" range="{{competitions}}" range-key="name" bindchange="onCompetitionChange">
+      <view class="picker">
+        {{selectedCompetition ? selectedCompetition.name : '请选择赛事'}}
+      </view>
+    </picker>
+  </view>
+
+  <view wx:if="{{selectedCompetition}}">
+    <view class="section">
+      <view class="section-title">分组设置</view>
+      <view class="group-count">
+        <text>小组数量:</text>
+        <input type="number" value="{{groupCount}}" bindinput="onGroupCountChange" />
+        <button size="mini" bindtap="createGroups">生成分组</button>
+      </view>
+    </view>
+
+    <view class="section" wx:if="{{groups.length > 0}}">
+      <view class="section-title">分组列表</view>
+      <view class="group-item card" wx:for="{{groups}}" wx:key="id">
+        <view class="group-header">
+          <text class="group-name">{{item.name}}</text>
+          <text class="member-count">队员数: {{item.member_count || 0}}</text>
+        </view>
+        <view class="group-members">
+          <text wx:for="{{item.members}}" wx:for-item="member" wx:key="id">{{member.team_name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section" wx:if="{{pendingRegistrations.length > 0}}">
+      <view class="section-title">待分组报名 ({{pendingRegistrations.length}})</view>
+      <view class="reg-item" wx:for="{{pendingRegistrations}}" wx:key="id">
+        <text>{{item.team_name || item.user_name}}</text>
+        <picker mode="selector" range="{{groupOptions}}" range-key="name" bindchange="onAssignGroup" data-reg-id="{{item.id}}">
+          <button size="mini">分配到</button>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!selectedCompetition}}">
+    <text>请先选择赛事</text>
+  </view>
+</view>

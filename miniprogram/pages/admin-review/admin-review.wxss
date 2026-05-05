@@ -1,0 +1,199 @@
+/* pages/admin-review/admin-review.wxss */
+.container {
+  padding: 20rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+}
+
+.comp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  background: white;
+  border-radius: 12rpx;
+}
+
+.comp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.comp-name {
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.comp-status {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.pending-count {
+  font-size: 24rpx;
+  color: #faad14;
+  font-weight: 500;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.back-btn {
+  font-size: 28rpx;
+  color: #1890ff;
+}
+
+.title {
+  font-size: 32rpx;
+  font-weight: 600;
+  flex: 1;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+  background: white;
+  padding: 16rpx;
+  border-radius: 12rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx;
+  font-size: 26rpx;
+  color: #666;
+  border-radius: 8rpx;
+}
+
+.tab.active {
+  background: #1890ff;
+  color: white;
+}
+
+.reg-item {
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  background: white;
+  border-radius: 12rpx;
+}
+
+.reg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.reg-user {
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.reg-status {
+  font-size: 24rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.status-pending {
+  background: #fffbe6;
+  color: #faad14;
+}
+
+.status-approved {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.status-rejected {
+  background: #fff2f0;
+  color: #ff4d4f;
+}
+
+.reg-detail {
+  margin-bottom: 12rpx;
+}
+
+.reg-team {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.members-info {
+  background: #f9f9f9;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.members-title {
+  font-size: 26rpx;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8rpx 0;
+  font-size: 24rpx;
+}
+
+.member-name {
+  color: #333;
+}
+
+.member-class {
+  color: #999;
+}
+
+.reg-time {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 16rpx;
+}
+
+.reg-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.btn-approve,
+.btn-reject {
+  flex: 1;
+  font-size: 28rpx;
+  padding: 12rpx 0;
+  border-radius: 8rpx;
+  margin: 0;
+}
+
+.btn-approve {
+  background: #52c41a;
+  color: white;
+}
+
+.btn-reject {
+  background: #ff4d4f;
+  color: white;
+}
+
+.empty {
+  text-align: center;
+  padding: 60rpx 0;
+  color: #999;
+}

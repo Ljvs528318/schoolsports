@@ -1,0 +1,111 @@
+/* pages/index/index.wxss */
+.swiper {
+  height: 360rpx;
+  margin-bottom: 20rpx;
+}
+
+.swiper-item {
+  padding: 20rpx;
+}
+
+.announcement-card {
+  background: linear-gradient(135deg, #1890ff, #36cfc9);
+  border-radius: 16rpx;
+  padding: 30rpx;
+  height: 280rpx;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.announcement-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 16rpx;
+}
+
+.announcement-content {
+  font-size: 26rpx;
+  opacity: 0.9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  padding-left: 10rpx;
+  border-left: 8rpx solid #1890ff;
+}
+
+.quick-entries {
+  display: flex;
+  justify-content: space-around;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.08);
+}
+
+.entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.entry-icon {
+  font-size: 60rpx;
+  margin-bottom: 12rpx;
+}
+
+.entry-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.competition-list {
+  /* 样式继承card */
+}
+
+.competition-item {
+  margin-bottom: 20rpx;
+}
+
+.competition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.competition-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.competition-info {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 12rpx;
+}
+
+.info-item {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.competition-footer {
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 12rpx;
+  margin-top: 12rpx;
+}

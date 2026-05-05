@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "admin/_sidebar.html" import admin_sidebar %}
+{% block title %}公告管理{% endblock %}
+{% block sidebar %}{{ admin_sidebar() }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0"><i class="bi bi-megaphone me-2 text-primary"></i>公告管理</h4>
+  <a href="{{ url_for('admin.announcement_create') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-circle me-1"></i>发布公告
+  </a>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr><th>标题</th><th>关联赛事</th><th>发布人</th><th>时间</th><th>置顶</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        {% for a in items %}
+        <tr>
+          <td class="fw-semibold">
+            {% if a.is_pinned %}<i class="bi bi-pin-fill text-danger me-1"></i>{% endif %}
+            {{ a.title }}
+          </td>
+          <td>{{ a.competition.name if a.competition else '全局' }}</td>
+          <td>{{ a.author.real_name or a.author.username if a.author else '-' }}</td>
+          <td class="small text-muted">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{% if a.is_pinned %}<span class="badge bg-danger">置顶</span>{% endif %}</td>
+          <td>
+            <a href="{{ url_for('admin.announcement_edit', aid=a.id) }}" class="btn btn-sm btn-outline-primary py-0">编辑</a>
+            <form method="post" action="{{ url_for('admin.announcement_delete', aid=a.id) }}" class="d-inline"
+                  onsubmit="return confirm('确认删除？')">
+              <button class="btn btn-sm btn-outline-danger py-0">删除</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">暂无公告</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

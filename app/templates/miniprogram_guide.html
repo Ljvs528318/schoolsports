@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园体育微信小程序 - 测试指南</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; line-height: 1.8; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; color: #1890ff; margin: 30px 0; font-size: 28px; }
+        h2 { color: #1890ff; border-left: 4px solid #1890ff; padding-left: 12px; margin: 30px 0 15px; font-size: 22px; }
+        h3 { color: #333; margin: 20px 0 10px; font-size: 18px; }
+        .card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .step { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start; }
+        .step-num { background: #1890ff; color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .step-content { flex: 1; }
+        .step-content strong { color: #1890ff; }
+        code { background: #f5f5f5; padding: 2px 8px; border-radius: 4px; font-family: Consolas, monospace; color: #d63384; font-size: 14px; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 10px 0; font-size: 14px; line-height: 1.6; }
+        pre .comment { color: #6a9955; }
+        pre .string { color: #ce9178; }
+        pre .keyword { color: #569cd6; }
+        .tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 13px; margin: 2px; }
+        .tag-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .tag-danger { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+        th, td { border: 1px solid #e8e8e8; padding: 10px 12px; text-align: left; }
+        th { background: #fafafa; font-weight: 600; }
+        .screenshot { text-align: center; padding: 20px; background: #fafafa; border-radius: 8px; margin: 10px 0; }
+        .screenshot-box { display: inline-block; width: 280px; height: 500px; background: #fff; border: 2px solid #ddd; border-radius: 24px; padding: 40px 16px 16px; position: relative; }
+        .screenshot-box::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 60px; height: 6px; background: #ddd; border-radius: 3px; }
+        .mini-page { height: 100%; overflow: hidden; }
+        .mini-header { background: #1890ff; color: #fff; padding: 10px; text-align: center; font-size: 16px; font-weight: bold; }
+        .mini-body { padding: 12px; font-size: 12px; }
+        .mini-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+        .mini-btn { background: #1890ff; color: #fff; padding: 6px 16px; border-radius: 4px; text-align: center; margin: 5px 0; }
+        .mini-input { border: 1px solid #ddd; border-radius: 4px; padding: 6px 10px; margin-bottom: 8px; font-size: 12px; width: 100%; }
+        .warning { background: #fff7e6; border: 1px solid #ffe58f; border-radius: 8px; padding: 16px; margin: 15px 0; }
+        .warning::before { content: '⚠️ '; }
+        .success { background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px; padding: 16px; margin: 15px 0; }
+        .success::before { content: '✅ '; }
+        .api-test { margin: 10px 0; }
+        .api-test-btn { background: #1890ff; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .api-test-btn:hover { background: #40a9ff; }
+        .api-result { background: #f5f5f5; padding: 12px; border-radius: 6px; margin-top: 8px; font-size: 13px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        .tabs { display: flex; gap: 0; margin-bottom: -1px; }
+        .tab { padding: 10px 20px; background: #f5f5f5; border: 1px solid #e8e8e8; border-bottom: none; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 14px; }
+        .tab.active { background: #fff; border-bottom: 1px solid #fff; font-weight: bold; color: #1890ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 校园体育微信小程序 - 测试指南</h1>
+
+        <div class="card">
+            <h2>📋 项目概览</h2>
+            <p>本次开发为校园体育比赛管理系统新增了 <strong>微信小程序</strong> 配套前端，以及后端 <strong>JSON API</strong> 接口。</p>
+            <table>
+                <tr><th>项目</th><th>说明</th></tr>
+                <tr><td>小程序目录</td><td><code>f:\web\schoolsports\miniprogram\</code></td></tr>
+                <tr><td>后端API前缀</td><td><code>/api/</code></td></tr>
+                <tr><td>认证方式</td><td>JWT Token (Bearer)</td></tr>
+                <tr><td>后端服务器</td><td><code>http://192.168.1.99:5000</code></td></tr>
+            </table>
+        </div>
+
+        <!-- API测试区域 -->
+        <div class="card">
+            <h2>🧪 API接口测试</h2>
+            <p>点击下方按钮可实时测试后端API（需先启动Flask服务器）</p>
+            <div class="warning">确保Flask服务器已启动: <code>python run.py</code></div>
+
+            <div class="api-test">
+                <h3>1. 用户登录</h3>
+                <button class="api-test-btn" onclick="testLogin()">测试登录</button>
+                <div id="login-result" class="api-result" style="display:none"></div>
+            </div>
+
+            <div class="api-test">
+                <h3>2. 赛事列表</h3>
+                <button class="api-test-btn" onclick="testCompetitions()">获取赛事列表</button>
+                <div id="competitions-result" class="api-result" style="display:none"></div>
+            </div>
+
+            <div class="api-test">
+                <h3>3. 用户资料 (需JWT)</h3>
+                <button class="api-test-btn" onclick="testProfile()">获取用户资料</button>
+                <div id="profile-result" class="api-result" style="display:none"></div>
+            </div>
+
+            <div class="api-test">
+                <h3>4. 赛程查询</h3>
+                <button class="api-test-btn" onclick="testSchedule()">获取篮球赛程</button>
+                <div id="schedule-result" class="api-result" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- 微信开发者工具测试 -->
+        <div class="card">
+            <h2>📱 方法一：微信开发者工具（推荐）</h2>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>下载微信开发者工具</strong><br>
+                    访问 <a href="https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html" target="_blank">微信开发者工具下载页</a>，下载 Windows 稳定版并安装。
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>使用测试号登录</strong><br>
+                    打开开发者工具，选择"小程序"→ 点击"使用测试号"（无需注册真实AppID即可测试）<br>
+                    <span class="tag tag-info">如需真实AppID，到 mp.weixin.qq.com 注册</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>导入项目</strong><br>
+                    项目目录选择: <code>f:\web\schoolsports\miniprogram</code><br>
+                    AppID: 选择"测试号"或输入你的AppID
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <strong>关闭域名校验（本地测试必须）</strong><br>
+                    在开发者工具中: <strong>详情 → 本地设置 → 勾选"不校验合法域名"</strong><br>
+                    <span class="tag tag-warning">必须勾选！否则无法请求本地服务器</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content">
+                    <strong>确认Flask服务器已启动</strong><br>
+                    在终端运行:
+                    <pre>cd f:\web\schoolsports
+C:\Users\Administrator\.workbuddy\binaries\python\envs\schoolsports\Scripts\python.exe run.py</pre>
+                    确认服务器运行在 <code>http://192.168.1.99:5000</code>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">6</div>
+                <div class="step-content">
+                    <strong>开始测试</strong><br>
+                    开发者工具会自动编译并显示小程序界面。可以使用以下测试账号:
+                    <table>
+                        <tr><th>账号</th><th>密码</th><th>角色</th></tr>
+                        <tr><td>admin</td><td>admin123</td><td>管理员</td></tr>
+                        <tr><td>student01</td><td>student123</td><td>学生</td></tr>
+                        <tr><td>student02</td><td>student123</td><td>学生</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 浏览器预览 -->
+        <div class="card">
+            <h2>🌐 方法二：浏览器快速预览</h2>
+            <p>无需安装开发者工具，直接在浏览器中预览小程序UI效果：</p>
+            <p style="margin-top:10px">
+                <a href="/miniprogram-preview" style="display:none" id="preview-link"></a>
+                <button class="api-test-btn" onclick="window.open('/miniprogram-preview','_blank')">打开预览页面</button>
+                <span class="tag tag-info">需先启动Flask服务器</span>
+            </p>
+            <div class="warning">浏览器预览仅展示UI效果，部分微信API（如wx.login）不可用，完整功能请使用开发者工具</div>
+        </div>
+
+        <!-- 小程序页面截图预览 -->
+        <div class="card">
+            <h2>🖼️ 小程序页面预览</h2>
+            <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+                <div class="screenshot">
+                    <div class="screenshot-box">
+                        <div class="mini-page">
+                            <div class="mini-header">校园体育</div>
+                            <div class="mini-body">
+                                <div class="mini-card" style="background:linear-gradient(135deg,#1890ff,#36cfc9);color:#fff;padding:16px;">
+                                    <div style="font-size:16px;font-weight:bold;margin-bottom:6px">📢 2026校园篮球联赛报名</div>
+                                    <div style="font-size:11px;opacity:0.9">欢迎各班级组队参加...</div>
+                                </div>
+                                <div style="font-size:13px;font-weight:bold;margin:10px 0 8px;border-left:3px solid #1890ff;padding-left:8px;">快捷入口</div>
+                                <div style="display:flex;justify-content:space-around;text-align:center;">
+                                    <div><div style="font-size:24px">🏆</div><div style="font-size:10px;color:#666">赛事列表</div></div>
+                                    <div><div style="font-size:24px">📝</div><div style="font-size:10px;color:#666">我的报名</div></div>
+                                    <div><div style="font-size:24px">👤</div><div style="font-size:10px;color:#666">个人中心</div></div>
+                                </div>
+                                <div style="font-size:13px;font-weight:bold;margin:10px 0 8px;border-left:3px solid #1890ff;padding-left:8px;">近期赛事</div>
+                                <div class="mini-card">
+                                    <div style="display:flex;justify-content:space-between;"><strong style="font-size:13px;">2026校园篮球联赛</strong><span style="font-size:10px;color:#52c41a;">报名中</span></div>
+                                    <div style="font-size:11px;color:#666;margin-top:4px;">类型: 团体赛 | 赛制: 混合赛</div>
+                                </div>
+                                <div class="mini-card">
+                                    <div style="display:flex;justify-content:space-between;"><strong style="font-size:13px;">乒乓球个人赛</strong><span style="font-size:10px;color:#faad14;">进行中</span></div>
+                                    <div style="font-size:11px;color:#666;margin-top:4px;">类型: 个人赛 | 赛制: 循环赛</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:8px;font-size:13px;color:#666;">首页</div>
+                </div>
+
+                <div class="screenshot">
+                    <div class="screenshot-box">
+                        <div class="mini-page">
+                            <div class="mini-header">登录</div>
+                            <div class="mini-body" style="padding-top:30px;">
+                                <div style="text-align:center;margin-bottom:20px;">
+                                    <div style="font-size:48px;">🏫</div>
+                                    <div style="font-size:16px;font-weight:bold;color:#1890ff;margin-top:8px;">校园体育管理系统</div>
+                                    <div style="font-size:12px;color:#999;">微信小程序版</div>
+                                </div>
+                                <input class="mini-input" placeholder="请输入用户名" value="admin">
+                                <input class="mini-input" placeholder="请输入密码" type="password">
+                                <div class="mini-btn">登录</div>
+                                <div style="text-align:center;margin-top:10px;"><span style="font-size:12px;color:#1890ff;">没有账号？立即注册</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:8px;font-size:13px;color:#666;">登录页</div>
+                </div>
+
+                <div class="screenshot">
+                    <div class="screenshot-box">
+                        <div class="mini-page">
+                            <div class="mini-header">赛事详情</div>
+                            <div class="mini-body">
+                                <div class="mini-card">
+                                    <div style="display:flex;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding-bottom:8px;margin-bottom:8px;">
+                                        <strong style="font-size:14px;">2026校园篮球联赛</strong>
+                                        <span style="font-size:10px;color:#52c41a;">报名中</span>
+                                    </div>
+                                    <div style="font-size:11px;color:#666;line-height:1.8;">
+                                        项目类型: 篮球<br>
+                                        参赛形式: 团体赛<br>
+                                        赛制: 混合赛(积分+淘汰)<br>
+                                        每队人数: 5人<br>
+                                        积分: 胜3 平1 负0
+                                    </div>
+                                </div>
+                                <div class="mini-btn">立即报名</div>
+                                <div style="display:flex;gap:10px;margin-top:10px;">
+                                    <div style="flex:1;background:#fff;border:1px solid #eee;border-radius:8px;padding:10px;text-align:center;font-size:12px;">📅 查看赛程</div>
+                                    <div style="flex:1;background:#fff;border:1px solid #eee;border-radius:8px;padding:10px;text-align:center;font-size:12px;">🏆 积分榜</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:8px;font-size:13px;color:#666;">赛事详情</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API端点列表 -->
+        <div class="card">
+            <h2>📡 API端点列表</h2>
+            <table>
+                <tr><th>方法</th><th>端点</th><th>说明</th><th>认证</th></tr>
+                <tr><td><span class="tag tag-success">POST</span></td><td><code>/api/auth/login</code></td><td>用户登录</td><td>❌</td></tr>
+                <tr><td><span class="tag tag-success">POST</span></td><td><code>/api/auth/register</code></td><td>用户注册</td><td>❌</td></tr>
+                <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/auth/profile</code></td><td>获取用户资料</td><td>✅</td></tr>
+                <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/competitions</code></td><td>赛事列表</td><td>❌</td></tr>
+                <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/competitions/&lt;id&gt;</code></td><td>赛事详情</td><td>❌</td></tr>
+                <tr><td><span class="tag tag-success">POST</span></td><td><code>/api/competitions/&lt;id&gt;/register</code></td><td>报名参赛</td><td>✅</td></tr>
+                <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/competitions/&lt;id&gt;/schedule</code></td><td>获取赛程</td><td>❌</td></tr>
+                <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/competitions/&lt;id&gt;/standings</code></td><td>积分榜</td><td>❌</td></tr>
+                <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/user/registrations</code></td><td>我的报名</td><td>✅</td></tr>
+                <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/announcements</code></td><td>公告列表</td><td>❌</td></tr>
+            </table>
+        </div>
+
+        <!-- 发布指南 -->
+        <div class="card">
+            <h2>🚀 发布到微信</h2>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>注册小程序账号</strong><br>
+                    访问 <a href="https://mp.weixin.qq.com" target="_blank">mp.weixin.qq.com</a> → 点击"立即注册" → 选择"小程序"<br>
+                    <span class="tag tag-warning">需要邮箱验证，个人或企业认证</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>获取AppID</strong><br>
+                    登录小程序后台 → 开发管理 → 开发设置 → 复制AppID<br>
+                    将AppID填入 <code>miniprogram/project.config.json</code> 的 <code>appid</code> 字段
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>配置服务器域名</strong><br>
+                    小程序后台 → 开发管理 → 开发设置 → 服务器域名 → 添加request合法域名<br>
+                    <span class="tag tag-danger">必须HTTPS！本地测试不校验域名，发布必须配置</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <strong>上传代码</strong><br>
+                    微信开发者工具中点击"上传"按钮 → 填写版本号和备注 → 上传<br>
+                    <span class="tag tag-info">上传时需要扫码登录，我会提示您扫码</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content">
+                    <strong>提交审核</strong><br>
+                    登录小程序后台 → 版本管理 → 开发版本 → 提交审核 → 填写审核信息<br>
+                    审核时间通常1-7天
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">6</div>
+                <div class="step-content">
+                    <strong>发布上线</strong><br>
+                    审核通过后 → 版本管理 → 审核版本 → 发布<br>
+                    <span class="tag tag-success">发布后用户即可搜索使用！</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin + '/api';
+        let token = '';
+
+        async function testLogin() {
+            const resultEl = document.getElementById('login-result');
+            resultEl.style.display = 'block';
+            resultEl.textContent = '请求中...';
+            try {
+                const res = await fetch(BASE_URL + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                const data = await res.json();
+                if (data.code === 0) {
+                    token = data.data.token;
+                    resultEl.innerHTML = '✅ 登录成功！\n\nToken: ' + token.substring(0, 50) + '...\n\n用户: ' + JSON.stringify(data.data.user, null, 2);
+                } else {
+                    resultEl.textContent = '❌ 登录失败: ' + data.message;
+                }
+            } catch (e) {
+                resultEl.textContent = '❌ 请求失败: ' + e.message + '\n\n请确保Flask服务器已启动';
+            }
+        }
+
+        async function testCompetitions() {
+            const resultEl = document.getElementById('competitions-result');
+            resultEl.style.display = 'block';
+            resultEl.textContent = '请求中...';
+            try {
+                const res = await fetch(BASE_URL + '/competitions');
+                const data = await res.json();
+                if (data.code === 0) {
+                    const comps = data.data.competitions;
+                    resultEl.innerHTML = '✅ 获取成功！共 ' + comps.length + ' 个赛事\n\n' + comps.map(c => '📌 ' + c.name + ' (' + c.status_label + ') - ' + c.format_label).join('\n');
+                } else {
+                    resultEl.textContent = '❌ 获取失败: ' + data.message;
+                }
+            } catch (e) {
+                resultEl.textContent = '❌ 请求失败: ' + e.message;
+            }
+        }
+
+        async function testProfile() {
+            const resultEl = document.getElementById('profile-result');
+            resultEl.style.display = 'block';
+            if (!token) {
+                resultEl.textContent = '⚠️ 请先测试登录获取Token';
+                return;
+            }
+            resultEl.textContent = '请求中...';
+            try {
+                const res = await fetch(BASE_URL + '/auth/profile', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                resultEl.innerHTML = res.status === 200 ? '✅ 成功\n\n' + JSON.stringify(data.data, null, 2) : '❌ 失败: ' + JSON.stringify(data);
+            } catch (e) {
+                resultEl.textContent = '❌ 请求失败: ' + e.message;
+            }
+        }
+
+        async function testSchedule() {
+            const resultEl = document.getElementById('schedule-result');
+            resultEl.style.display = 'block';
+            resultEl.textContent = '请求中...';
+            try {
+                // 先获取赛事列表
+                const compRes = await fetch(BASE_URL + '/competitions');
+                const compData = await compRes.json();
+                if (compData.code !== 0 || compData.data.competitions.length === 0) {
+                    resultEl.textContent = '❌ 没有可用赛事';
+                    return;
+                }
+                const compId = compData.data.competitions[0].id;
+                const res = await fetch(BASE_URL + '/competitions/' + compId + '/schedule');
+                const data = await res.json();
+                if (data.code === 0) {
+                    const stages = data.data.stages || [];
+                    let output = '✅ 赛事ID: ' + compId + '\n\n';
+                    stages.forEach(s => {
+                        output += '📅 ' + s.stage_label + ' (' + s.matches.length + '场)\n';
+                        s.matches.forEach(m => {
+                            output += '  ' + m.home_team + ' ' + (m.home_score !== null ? m.home_score : '-') + ' : ' + (m.away_score !== null ? m.away_score : '-') + ' ' + m.away_team + '\n';
+                        });
+                    });
+                    resultEl.textContent = output;
+                } else {
+                    resultEl.textContent = '❌ 获取失败: ' + data.message;
+                }
+            } catch (e) {
+                resultEl.textContent = '❌ 请求失败: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

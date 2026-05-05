@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑赛事' if comp else '创建赛事' }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-{{ 'pencil' if comp else 'plus-circle' }} me-2 text-primary"></i>
+        {{ '编辑赛事' if comp else '创建新赛事' }}
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          <!-- 基本信息 -->
+          <h6 class="text-muted text-uppercase fw-semibold mb-3 border-bottom pb-1">基本信息</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">赛事名称 <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" required
+                     value="{{ comp.name if comp else '' }}" placeholder="例：2024年校园篮球联赛">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">运动项目</label>
+              <input type="text" name="sport_type" class="form-control"
+                     value="{{ comp.sport_type if comp else '' }}" placeholder="篮球/足球/田径…">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">参赛形式</label>
+              <select name="comp_type" class="form-select" id="compType">
+                <option value="individual" {% if comp and comp.comp_type=='individual' %}selected{% endif %}>个人赛</option>
+                <option value="team"       {% if comp and comp.comp_type=='team'       %}selected{% endif %}>团体赛</option>
+                <option value="mixed"      {% if comp and comp.comp_type=='mixed'      %}selected{% endif %}>混合（个人+团体）</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">赛制</label>
+              <select name="format" class="form-select">
+                <option value="round_robin" {% if comp and comp.format=='round_robin' %}selected{% endif %}>积分循环赛</option>
+                <option value="knockout"    {% if comp and comp.format=='knockout'    %}selected{% endif %}>单淘汰赛</option>
+                <option value="hybrid"      {% if comp and comp.format=='hybrid'      %}selected{% endif %}>混合赛（积分+淘汰）</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">状态</label>
+              <select name="status" class="form-select">
+                <option value="draft"     {% if not comp or comp.status=='draft'     %}selected{% endif %}>草稿</option>
+                <option value="open"      {% if comp and comp.status=='open'         %}selected{% endif %}>报名中</option>
+                <option value="ongoing"   {% if comp and comp.status=='ongoing'      %}selected{% endif %}>进行中</option>
+                <option value="finished"  {% if comp and comp.status=='finished'     %}selected{% endif %}>已结束</option>
+                <option value="cancelled" {% if comp and comp.status=='cancelled'    %}selected{% endif %}>已取消</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">比赛场地</label>
+              <input type="text" name="venue" class="form-control"
+                     value="{{ comp.venue if comp else '' }}" placeholder="体育馆/操场/篮球场">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">最大参赛队/人数</label>
+              <input type="number" name="max_teams" class="form-control" min="2"
+                     value="{{ comp.max_teams if comp else 16 }}">
+            </div>
+            <div class="col-md-3 team-size-field" {% if not comp or comp.comp_type=='individual' %}style="display:none"{% endif %}>
+              <label class="form-label fw-semibold">每队人数</label>
+              <input type="number" name="team_size" class="form-control" min="1"
+                     value="{{ comp.team_size if comp else 5 }}">
+            </div>
+          </div>
+
+          <!-- 时间 -->
+          <h6 class="text-muted text-uppercase fw-semibold mb-3 border-bottom pb-1 mt-2">时间安排</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">报名开始</label>
+              <input type="datetime-local" name="reg_start" class="form-control"
+                     value="{{ comp.reg_start.strftime('%Y-%m-%dT%H:%M') if comp and comp.reg_start else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">报名截止</label>
+              <input type="datetime-local" name="reg_end" class="form-control"
+                     value="{{ comp.reg_end.strftime('%Y-%m-%dT%H:%M') if comp and comp.reg_end else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">比赛开始</label>
+              <input type="datetime-local" name="start_date" class="form-control"
+                     value="{{ comp.start_date.strftime('%Y-%m-%dT%H:%M') if comp and comp.start_date else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">比赛结束</label>
+              <input type="datetime-local" name="end_date" class="form-control"
+                     value="{{ comp.end_date.strftime('%Y-%m-%dT%H:%M') if comp and comp.end_date else '' }}">
+            </div>
+          </div>
+
+          <!-- 积分规则 -->
+          <h6 class="text-muted text-uppercase fw-semibold mb-3 border-bottom pb-1 mt-2">积分 & 晋级规则</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">胜积分</label>
+              <input type="number" name="win_points" class="form-control" min="0"
+                     value="{{ comp.win_points if comp else 3 }}">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">平积分</label>
+              <input type="number" name="draw_points" class="form-control" min="0"
+                     value="{{ comp.draw_points if comp else 1 }}">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">负积分</label>
+              <input type="number" name="loss_points" class="form-control" min="0"
+                     value="{{ comp.loss_points if comp else 0 }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">混合赛晋级人数</label>
+              <input type="number" name="top_advance" class="form-control" min="2"
+                     value="{{ comp.top_advance if comp else 8 }}" placeholder="取前N名进淘汰赛">
+            </div>
+          </div>
+
+          <!-- 简介 & 规则 -->
+          <h6 class="text-muted text-uppercase fw-semibold mb-3 border-bottom pb-1 mt-2">简介 & 规则</h6>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">赛事简介</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="赛事背景、目的等">{{ comp.description if comp else '' }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">比赛规则（详细）</label>
+            <textarea name="rules" class="form-control" rows="5" placeholder="具体比赛规则、评分标准等">{{ comp.rules if comp else '' }}</textarea>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary fw-bold px-4">{{ '更新赛事' if comp else '创建赛事' }}</button>
+            <a href="{{ url_for('competition.list_comps') }}" class="btn btn-outline-secondary">取消</a>
+            {% if comp %}
+            <form method="post" action="{{ url_for('competition.delete', cid=comp.id) }}" class="ms-auto"
+                  onsubmit="return confirm('确认删除「{{ comp.name }}」？此操作不可恢复！')">
+              <button class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>删除赛事</button>
+            </form>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('compType').addEventListener('change', function(){
+  const v = this.value;
+  document.querySelectorAll('.team-size-field').forEach(el=>{
+    el.style.display = (v==='team'||v==='mixed') ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

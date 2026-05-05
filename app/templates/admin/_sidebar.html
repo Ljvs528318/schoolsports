@@ -1,0 +1,38 @@
+{% macro admin_sidebar(current_user=None) %}
+{% if current_user is none %}
+{% set cu = current_user if current_user is defined else None %}
+{% else %}
+{% set cu = current_user %}
+{% endif %}
+<nav class="sidebar d-none d-md-block">
+  <div class="pt-2 pb-3">
+    <div class="sidebar-section">概览</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.endpoint=='admin.dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i> 控制台
+    </a>
+    <div class="sidebar-section">赛事管理</div>
+    <a href="{{ url_for('competition.list_comps') }}" class="nav-link {% if request.endpoint in ['competition.list_comps','competition.detail'] %}active{% endif %}">
+      <i class="bi bi-calendar-event"></i> 赛事列表
+    </a>
+    <a href="{{ url_for('competition.create') }}" class="nav-link {% if request.endpoint=='competition.create' %}active{% endif %}">
+      <i class="bi bi-plus-circle"></i> 创建赛事
+    </a>
+    {% if cu and cu.is_admin %}
+    <div class="sidebar-section">系统管理</div>
+    <a href="{{ url_for('admin.user_list') }}" class="nav-link {% if request.endpoint=='admin.user_list' %}active{% endif %}">
+      <i class="bi bi-people"></i> 用户管理
+    </a>
+    <a href="{{ url_for('admin.announcements') }}" class="nav-link {% if request.endpoint=='admin.announcements' %}active{% endif %}">
+      <i class="bi bi-megaphone"></i> 公告管理
+    </a>
+    {% endif %}
+    <div class="sidebar-section">账户</div>
+    <a href="{{ url_for('auth.profile') }}" class="nav-link">
+      <i class="bi bi-person"></i> 个人资料
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger">
+      <i class="bi bi-box-arrow-right"></i> 退出
+    </a>
+  </div>
+</nav>
+{% endmacro %}

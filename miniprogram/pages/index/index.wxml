@@ -1,0 +1,69 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 轮播图/公告 -->
+  <swiper class="swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="3000" circular="{{true}}" wx:if="{{announcements.length > 0}}">
+    <block wx:for="{{announcements}}" wx:key="id">
+      <swiper-item>
+        <view class="swiper-item">
+          <view class="announcement-card">
+            <view class="announcement-title">{{item.title}}</view>
+            <view class="announcement-content">{{item.content}}</view>
+          </view>
+        </view>
+      </swiper-item>
+    </block>
+  </swiper>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{announcements.length === 0 && !loading}}">
+    <text class="empty-text">暂无公告</text>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="section">
+    <view class="section-title">快捷入口</view>
+    <view class="quick-entries">
+      <view class="entry-item" bindtap="goToCompetitions">
+        <view class="entry-icon">🏆</view>
+        <text class="entry-text">赛事列表</text>
+      </view>
+      <view class="entry-item" bindtap="goToMyRegistrations" wx:if="{{isLoggedIn}}">
+        <view class="entry-icon">📝</view>
+        <text class="entry-text">我的报名</text>
+      </view>
+      <view class="entry-item" bindtap="goToProfile">
+        <view class="entry-icon">👤</view>
+        <text class="entry-text">个人中心</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 近期赛事 -->
+  <view class="section">
+    <view class="section-title">近期赛事</view>
+    <view class="competition-list">
+      <view class="competition-item card" wx:for="{{recentCompetitions}}" wx:key="id" bindtap="goToCompetitionDetail" data-id="{{item.id}}">
+        <view class="competition-header">
+          <text class="competition-name">{{item.name}}</text>
+          <text class="tag tag-{{item.status === 'open' ? 'success' : (item.status === 'ongoing' ? 'warning' : 'info')}}">{{item.status_label}}</text>
+        </view>
+        <view class="competition-info">
+          <text class="info-item">类型: {{item.comp_type_label}}</text>
+          <text class="info-item">赛制: {{item.format_label}}</text>
+        </view>
+        <view class="competition-footer">
+          <text class="info-item" wx:if="{{item.start_date}}">开始: {{item.start_date}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{recentCompetitions.length === 0 && !loading}}">
+      <text class="empty-text">暂无赛事</text>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

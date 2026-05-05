@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "admin/_sidebar.html" import admin_sidebar %}
+{% block title %}{{ '编辑' if ann else '发布' }}公告{% endblock %}
+{% block sidebar %}{{ admin_sidebar() }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-megaphone me-2"></i>{{ '编辑公告' if ann else '发布公告' }}</div>
+      <div class="card-body p-4">
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">标题 <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control" required
+                   value="{{ ann.title if ann else '' }}" placeholder="公告标题">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">关联赛事（可选）</label>
+            <select name="competition_id" class="form-select">
+              <option value="">-- 全局公告 --</option>
+              {% for c in competitions %}
+              <option value="{{ c.id }}" {% if ann and ann.competition_id==c.id %}selected{% endif %}>
+                {{ c.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">内容</label>
+            <textarea name="content" class="form-control" rows="8">{{ ann.content if ann else '' }}</textarea>
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" name="is_pinned" id="is_pinned"
+                   {% if ann and ann.is_pinned %}checked{% endif %}>
+            <label class="form-check-label" for="is_pinned">置顶显示</label>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">{{ '更新' if ann else '发布' }}</button>
+            <a href="{{ url_for('admin.announcements') }}" class="btn btn-outline-secondary">取消</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

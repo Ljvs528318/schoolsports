@@ -1,0 +1,68 @@
+<!--pages/admin-review/admin-review.wxml-->
+<view class="container">
+  <!-- 赛事选择 -->
+  <view class="comp-selector" wx:if="{{!selectedCompetition}}">
+    <view class="section-title">选择赛事</view>
+    <view class="comp-item card" wx:for="{{competitions}}" wx:key="id" bindtap="selectCompetition" data-id="{{item.id}}">
+      <view class="comp-info">
+        <text class="comp-name">{{item.name}}</text>
+        <text class="comp-status">{{item.status === 'active' ? '进行中' : (item.status === 'pending' ? '未开始' : '已结束')}}</text>
+      </view>
+      <text class="pending-count" wx:if="{{item.pending_count > 0}}">{{item.pending_count}}个待审核</text>
+    </view>
+    <view class="empty" wx:if="{{competitions.length === 0}}">
+      <text>暂无赛事</text>
+    </view>
+  </view>
+
+  <!-- 报名列表 -->
+  <view wx:if="{{selectedCompetition}}">
+    <view class="header">
+      <view class="back-btn" bindtap="goBack">← 返回</view>
+      <text class="title">{{selectedCompetition.name}} - 报名审核</text>
+    </view>
+
+    <!-- 状态筛选 -->
+    <view class="filter-tabs">
+      <view class="tab {{filter === 'all' ? 'active' : ''}}" bindtap="setFilter" data-filter="all">全部</view>
+      <view class="tab {{filter === 'pending' ? 'active' : ''}}" bindtap="setFilter" data-filter="pending">待审核</view>
+      <view class="tab {{filter === 'approved' ? 'active' : ''}}" bindtap="setFilter" data-filter="approved">已通过</view>
+      <view class="tab {{filter === 'rejected' ? 'active' : ''}}" bindtap="setFilter" data-filter="rejected">已拒绝</view>
+    </view>
+
+    <!-- 报名列表 -->
+    <view class="reg-item card" wx:for="{{registrations}}" wx:key="id">
+      <view class="reg-header">
+        <text class="reg-user">{{item.user_name || item.student_id}}</text>
+        <text class="reg-status status-{{item.status}}">
+          {{item.status === 'approved' ? '已通过' : (item.status === 'pending' ? '待审核' : '已拒绝')}}
+        </text>
+      </view>
+
+      <view class="reg-detail" wx:if="{{item.team_name}}">
+        <text class="reg-team">队伍: {{item.team_name}}</text>
+      </view>
+
+      <!-- 队员信息 -->
+      <view class="members-info" wx:if="{{item.members_list && item.members_list.length > 0}}">
+        <text class="members-title">队员信息:</text>
+        <view class="member-item" wx:for="{{item.members_list}}" wx:for-item="member" wx:key="student_id">
+          <text class="member-name">{{member.name}} ({{member.is_captain ? '队长' : '队员'}})</text>
+          <text class="member-class">{{member.class_name}}</text>
+        </view>
+      </view>
+
+      <view class="reg-time">报名: {{item.created_at}}</view>
+
+      <!-- 操作按钮 -->
+      <view class="reg-actions" wx:if="{{item.status === 'pending'}}">
+        <button class="btn-approve" bindtap="approveRegistration" data-id="{{item.id}}">通过</button>
+        <button class="btn-reject" bindtap="rejectRegistration" data-id="{{item.id}}">拒绝</button>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{registrations.length === 0}}">
+      <text>暂无报名记录</text>
+    </view>
+  </view>
+</view>

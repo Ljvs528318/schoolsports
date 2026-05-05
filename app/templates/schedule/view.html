@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}赛程 - {{ comp.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.bracket-line { border-right: 2px solid #ccc; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">
+    <i class="bi bi-calendar2-week me-2 text-primary"></i>赛程管理 · {{ comp.name }}
+  </h4>
+  <div class="d-flex gap-2">
+    {% if current_user.is_authenticated and current_user.is_teacher %}
+    <a href="{{ url_for('schedule.draw', cid=comp.id) }}" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-shuffle me-1"></i>重新抽签
+    </a>
+    <a href="{{ url_for('schedule.generate_matches', cid=comp.id) }}" class="btn btn-outline-warning btn-sm">
+      <i class="bi bi-arrow-clockwise me-1"></i>重新生成
+    </a>
+    {% endif %}
+    <a href="{{ url_for('competition.detail', cid=comp.id) }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>返回赛事
+    </a>
+  </div>
+</div>
+
+<!-- 小组赛 -->
+{% if group_matches %}
+<h5 class="fw-bold mb-2"><i class="bi bi-people me-2"></i>小组赛</h5>
+
+{% for g in groups %}
+{% if g.stage == 'group' %}
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span class="fw-bold">{{ g.name }}</span>
+    <span class="small text-muted">{{ g.members.count() }} 支队伍</span>
+  </div>
+  <div class="card-body p-0">
+    <!-- 积分榜 -->
+    {% if standings.get(g.id) %}
+    <div class="table-responsive">
+      <table class="table standings-table table-sm mb-0">
+        <thead><tr>
+          <th style="width:40px">名</th><th>队伍</th>
+          <th>场</th><th>胜</th><th>平</th><th>负</th>
+          <th>得</th><th>失</th><th>净</th><th class="text-primary">积分</th>
+        </tr></thead>
+        <tbody>
+          {% for m in standings[g.id] %}
+          <tr {% if loop.index <= [comp.top_advance // (groups|selectattr('stage','eq','group')|list|length), 1]|max %}style="background:#f0f9f0"{% endif %}>
+            <td class="fw-bold text-center">{{ loop.index }}</td>
+            <td class="fw-semibold">
+              {% if m.registration.user %}
+              {{ m.registration.team_name or m.registration.user.real_name or m.registration.user.username }}
+              <small class="text-muted">{{ m.registration.user.class_name or '' }}</small>
+              {% else %}{{ m.registration.team_name or '-' }}{% endif %}
+            </td>
+            <td>{{ m.played }}</td><td>{{ m.wins }}</td><td>{{ m.draws }}</td><td>{{ m.losses }}</td>
+            <td>{{ m.score_for }}</td><td>{{ m.score_against }}</td>
+            <td>{{ '+' if m.score_diff >= 0 else '' }}{{ m.score_diff }}</td>
+            <td class="fw-bold text-primary fs-6">{{ m.points }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- 本组比赛场次 -->
+    <div class="p-3">
+      <div class="row g-2">
+        {% for m in group_matches if m.group_id == g.id %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card match-card {{ m.status }} h-100">
+            <div class="card-body p-2">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="text-muted">第{{ m.round_num }}轮 #{{ m.match_order }}</small>
+                <span class="badge bg-{% if m.status=='finished' %}success{% elif m.status=='ongoing' %}warning text-dark{% else %}light text-dark{% endif %} small">
+                  {{ {'pending':'待赛','ongoing':'进行中','finished':'已结束','bye':'轮空'}.get(m.status,'') }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-center" style="width:38%">
+                  <div class="small fw-semibold {% if m.winner_reg_id and m.winner_reg_id==m.home_reg_id %}text-success{% endif %}">
+                    {{ m.home_reg.team_name if m.home_reg else '待定' }}
+                  </div>
+                  {% if m.status=='finished' and m.winner_reg_id==m.home_reg_id %}
+                  <i class="bi bi-trophy-fill text-warning" style="font-size:.75rem"></i>
+                  {% endif %}
+                </div>
+                <div class="text-center" style="width:24%">
+                  {% if m.status == 'finished' %}
+                  <span class="fw-bold fs-5">{{ m.home_score }}:{{ m.away_score }}</span>
+                  {% else %}
+                  <span class="text-muted">VS</span>
+                  {% endif %}
+                </div>
+                <div class="text-center" style="width:38%">
+                  <div class="small fw-semibold {% if m.winner_reg_id and m.winner_reg_id==m.away_reg_id %}text-success{% endif %}">
+                    {{ m.away_reg.team_name if m.away_reg else '待定' }}
+                  </div>
+                  {% if m.status=='finished' and m.winner_reg_id==m.away_reg_id %}
+                  <i class="bi bi-trophy-fill text-warning" style="font-size:.75rem"></i>
+                  {% endif %}
+                </div>
+              </div>
+              {% if m.scheduled_at or m.venue %}
+              <div class="text-center mt-1" style="font-size:.72rem;color:#999">
+                {% if m.scheduled_at %}<i class="bi bi-clock me-1"></i>{{ m.scheduled_at.strftime('%m/%d %H:%M') }}{% endif %}
+                {% if m.venue %}<i class="bi bi-geo-alt ms-2 me-1"></i>{{ m.venue }}{% endif %}
+              </div>
+              {% endif %}
+              {% if current_user.is_authenticated and current_user.is_teacher %}
+              <div class="mt-2 d-flex gap-1 justify-content-end">
+                {% if m.status != 'finished' and m.status != 'bye' %}
+                <a href="{{ url_for('schedule.match_result', mid=m.id) }}"
+                   class="btn btn-xs btn-primary btn-sm py-0 px-2" style="font-size:.75rem">录入成绩</a>
+                {% else %}
+                <a href="{{ url_for('schedule.match_result', mid=m.id) }}"
+                   class="btn btn-xs btn-outline-secondary btn-sm py-0 px-2" style="font-size:.75rem">修改</a>
+                <form method="post" action="{{ url_for('schedule.match_reset', mid=m.id) }}" class="d-inline">
+                  <button class="btn btn-xs btn-outline-danger btn-sm py-0 px-2" style="font-size:.75rem"
+                          onclick="return confirm('重置此场成绩？')">重置</button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('schedule.match_edit', mid=m.id) }}"
+                   class="btn btn-xs btn-outline-info btn-sm py-0 px-2" style="font-size:.75rem">时间</a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<!-- 淘汰赛 -->
+{% if knockout_matches %}
+<h5 class="fw-bold mb-3 mt-2"><i class="bi bi-diagram-3 me-2"></i>淘汰赛</h5>
+{% set stages_order = ['r32','r16','qf','sf','third','final'] %}
+{% for stage_key in stages_order %}
+  {% set stage_matches = knockout_matches|selectattr('stage','eq',stage_key)|list %}
+  {% if stage_matches %}
+  <div class="card mb-3">
+    <div class="card-header fw-bold">{{ stage_matches[0].stage_label }}</div>
+    <div class="card-body">
+      <div class="row g-3">
+        {% for m in stage_matches %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card match-card {{ m.status }}">
+            <div class="card-body p-3">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="flex-fill text-center">
+                  <div class="fw-bold {% if m.winner_reg_id==m.home_reg_id %}text-success{% endif %}">
+                    {{ m.home_reg.team_name if m.home_reg else '待定' }}
+                  </div>
+                  {% if m.winner_reg_id==m.home_reg_id %}<small class="text-warning"><i class="bi bi-trophy-fill"></i> 晋级</small>{% endif %}
+                </div>
+                <div class="px-3 text-center">
+                  {% if m.status=='finished' %}
+                  <div class="fw-bold fs-4">{{ m.home_score }}:{{ m.away_score }}</div>
+                  {% elif m.status=='bye' %}
+                  <span class="badge bg-secondary">轮空</span>
+                  {% else %}
+                  <span class="text-muted fw-bold">VS</span>
+                  {% endif %}
+                </div>
+                <div class="flex-fill text-center">
+                  <div class="fw-bold {% if m.winner_reg_id==m.away_reg_id %}text-success{% endif %}">
+                    {{ m.away_reg.team_name if m.away_reg else '待定' }}
+                  </div>
+                  {% if m.winner_reg_id==m.away_reg_id %}<small class="text-warning"><i class="bi bi-trophy-fill"></i> 晋级</small>{% endif %}
+                </div>
+              </div>
+              {% if current_user.is_authenticated and current_user.is_teacher and m.home_reg and m.away_reg %}
+              <div class="mt-2 text-end">
+                {% if m.status != 'finished' and m.status != 'bye' %}
+                <a href="{{ url_for('schedule.match_result', mid=m.id) }}" class="btn btn-primary btn-sm py-0">录入成绩</a>
+                {% else %}
+                <a href="{{ url_for('schedule.match_result', mid=m.id) }}" class="btn btn-outline-secondary btn-sm py-0">修改</a>
+                <form method="post" action="{{ url_for('schedule.match_reset', mid=m.id) }}" class="d-inline">
+                  <button class="btn btn-outline-danger btn-sm py-0" onclick="return confirm('重置？')">重置</button>
+                </form>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if not group_matches and not knockout_matches %}
+<div class="text-center text-muted py-5">
+  <i class="bi bi-calendar2-x" style="font-size:4rem"></i>
+  <h5 class="mt-2">还没有生成比赛场次</h5>
+  {% if current_user.is_teacher %}
+  <a href="{{ url_for('schedule.generate_matches', cid=comp.id) }}" class="btn btn-primary mt-2">立即生成</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

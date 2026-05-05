@@ -1,0 +1,62 @@
+<!--pages/schedule/schedule.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">赛程列表</text>
+  </view>
+
+  <view class="stage-section" wx:for="{{schedule}}" wx:key="stage" wx:for-item="stage">
+    <view class="stage-title stage-{{stage.stage}}">{{stage.stage_label}}</view>
+
+    <view class="match-list">
+      <view class="match-card card {{stage.stage === 'final' || stage.stage === 'third' ? 'match-highlight' : ''}}" wx:for="{{stage.matches}}" wx:key="id" wx:for-item="match">
+        <view class="match-header">
+          <text class="round-info">{{stage.stage === 'group' ? '第' + match.round_num + '轮' : ''}} #{{match.match_order}}</text>
+          <text class="status tag tag-{{match.status === 'finished' ? 'success' : (match.status === 'ongoing' ? 'warning' : 'info')}}">
+            {{match.status === 'finished' ? '已结束' : (match.status === 'ongoing' ? '进行中' : '待开始')}}
+          </text>
+        </view>
+
+        <view class="match-body">
+          <view class="team home {{match.status === 'finished' && match.home_score > match.away_score ? 'winner' : ''}}">
+            <text class="team-name">{{match.home_team}}</text>
+            <text class="score" wx:if="{{match.home_score !== null && match.home_score !== undefined}}">{{match.home_score}}</text>
+            <text class="winner-badge" wx:if="{{match.status === 'finished' && match.home_score > match.away_score}}">胜</text>
+          </view>
+          <view class="vs">
+            <text>VS</text>
+          </view>
+          <view class="team away {{match.status === 'finished' && match.away_score > match.home_score ? 'winner' : ''}}">
+            <text class="score" wx:if="{{match.away_score !== null && match.away_score !== undefined}}">{{match.away_score}}</text>
+            <text class="team-name">{{match.away_team}}</text>
+            <text class="winner-badge" wx:if="{{match.status === 'finished' && match.away_score > match.home_score}}">胜</text>
+          </view>
+        </view>
+
+        <!-- 决赛冠军提示 -->
+        <view class="champion-info" wx:if="{{stage.stage === 'final' && match.status === 'finished'}}">
+          <text class="champion-icon">🏆</text>
+          <text class="champion-text">{{match.home_score > match.away_score ? match.home_team : match.away_team}} 获得冠军！</text>
+        </view>
+
+        <!-- 三四名决赛提示 -->
+        <view class="third-place-info" wx:if="{{stage.stage === 'third' && match.status === 'finished'}}">
+          <text class="third-icon">🏅</text>
+          <text class="third-text">{{match.home_score > match.away_score ? match.home_team : match.away_team}} 获得季军！</text>
+        </view>
+
+        <view class="match-footer" wx:if="{{match.venue || match.scheduled_at}}">
+          <text class="venue" wx:if="{{match.venue}}">📍 {{match.venue}}</text>
+          <text class="time" wx:if="{{match.scheduled_at}}">{{match.scheduled_at}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{schedule.length === 0 && !loading}}">
+    <text class="empty-text">暂无赛程</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

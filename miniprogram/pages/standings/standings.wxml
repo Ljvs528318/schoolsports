@@ -1,0 +1,44 @@
+<!--pages/standings/standings.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">积分榜</text>
+  </view>
+
+  <view class="group-section" wx:for="{{groups}}" wx:key="group_id" wx:for-item="group">
+    <view class="group-title">{{group.group_name}}</view>
+
+    <view class="standings-table">
+      <view class="table-header">
+        <text class="col-rank">排名</text>
+        <text class="col-team">队伍</text>
+        <text class="col-played">赛</text>
+        <text class="col-win">胜</text>
+        <text class="col-draw">平</text>
+        <text class="col-loss">负</text>
+        <text class="col-points">积分</text>
+      </view>
+
+      <view class="table-row {{index < 3 ? 'top-3' : ''}}" wx:for="{{group.standings}}" wx:key="registration_id" wx:for-item="item">
+        <text class="col-rank {{index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : ''))}}">{{index + 1}}</text>
+        <text class="col-team">{{item.team_name}}</text>
+        <text class="col-played">{{item.played}}</text>
+        <text class="col-win">{{item.wins}}</text>
+        <text class="col-draw">{{item.draws}}</text>
+        <text class="col-loss">{{item.losses}}</text>
+        <text class="col-points">{{item.points}}</text>
+      </view>
+
+      <view class="no-data" wx:if="{{group.standings.length === 0}}">
+        <text>暂无积分数据</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{groups.length === 0 && !loading}}">
+    <text class="empty-text">暂无积分数据</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

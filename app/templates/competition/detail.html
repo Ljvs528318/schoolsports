@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% block title %}{{ comp.name }}{% endblock %}
+
+{% block content %}
+<!-- 头部 -->
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <div class="mb-1">
+          <span class="badge text-white badge-{{ comp.status }} me-1">{{ comp.status_label }}</span>
+          <span class="badge bg-secondary me-1">{{ comp.sport_type or '综合' }}</span>
+          <span class="badge bg-info text-dark">{{ comp.format_label }}</span>
+        </div>
+        <h3 class="fw-bold mb-1">{{ comp.name }}</h3>
+        <div class="text-muted small">
+          <i class="bi bi-geo-alt me-1"></i>{{ comp.venue or '待定' }} &nbsp;
+          <i class="bi bi-people me-1"></i>{{ {'individual':'个人赛','team':'团体赛','mixed':'混合赛'}.get(comp.comp_type,'') }} &nbsp;
+          {% if comp.start_date %}<i class="bi bi-calendar me-1"></i>{{ comp.start_date.strftime('%Y-%m-%d') }}{% endif %}
+          {% if comp.end_date %} ~ {{ comp.end_date.strftime('%Y-%m-%d') }}{% endif %}
+        </div>
+      </div>
+      <div class="col-md-4 text-md-end mt-2 mt-md-0">
+        {% if current_user.is_authenticated and current_user.is_teacher %}
+        <a href="{{ url_for('competition.edit', cid=comp.id) }}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-pencil me-1"></i>编辑赛事
+        </a>
+        <a href="{{ url_for('competition.manage_registrations', cid=comp.id) }}" class="btn btn-outline-warning btn-sm">
+          <i class="bi bi-list-check me-1"></i>报名管理
+        </a>
+        {% if comp.status == 'open' %}
+        <a href="{{ url_for('schedule.draw', cid=comp.id) }}" class="btn btn-outline-success btn-sm">
+          <i class="bi bi-shuffle me-1"></i>抽签分组
+        </a>
+        {% elif comp.status in ('ongoing','finished') %}
+        <a href="{{ url_for('schedule.schedule_view', cid=comp.id) }}" class="btn btn-primary btn-sm">
+          <i class="bi bi-calendar2-week me-1"></i>赛程管理
+        </a>
+        {% endif %}
+        {% endif %}
+
+        {% if current_user.is_authenticated and not current_user.is_teacher %}
+          {% if comp.status == 'open' %}
+            {% if user_reg %}
+              <span class="badge bg-{% if user_reg.status=='approved' %}success{% elif user_reg.status=='pending' %}warning text-dark{% else %}danger{% endif %} p-2">
+                {{ {'approved':'已报名','pending':'审核中','rejected':'已拒绝'}.get(user_reg.status,'') }}
+              </span>
+              {% if user_reg.status == 'pending' %}
+              <form method="post" action="{{ url_for('competition.unregister', cid=comp.id) }}" class="d-inline">
+                <button class="btn btn-sm btn-outline-danger">撤销报名</button>
+              </form>
+              {% endif %}
+            {% else %}
+            <a href="{{ url_for('competition.register', cid=comp.id) }}" class="btn btn-success btn-sm">
+              <i class="bi bi-pencil-square me-1"></i>我要报名
+            </a>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 导航 -->
+<ul class="nav nav-tabs mb-3" id="compTab">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-info">简介</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-regs">
+    参赛名单 <span class="badge bg-secondary">{{ registrations|length }}</span>
+  </a></li>
+  {% if groups %}
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-standings">积分榜</a></li>
+  {% endif %}
+  {% if matches %}
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-matches">赛程</a></li>
+  {% endif %}
+  {% if announcements %}
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-news">公告</a></li>
+  {% endif %}
+</ul>
+
+<div class="tab-content">
+  <!-- 简介 -->
+  <div class="tab-pane fade show active" id="tab-info">
+    <div class="row g-3">
+      <div class="col-md-8">
+        <div class="card"><div class="card-body">
+          <h6 class="fw-bold">赛事简介</h6>
+          <p>{{ comp.description or '暂无简介' }}</p>
+          {% if comp.rules %}
+          <h6 class="fw-bold mt-3">比赛规则</h6>
+          <pre class="bg-light p-3 rounded" style="white-space:pre-wrap">{{ comp.rules }}</pre>
+          {% endif %}
+        </div></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card"><div class="card-body">
+          <h6 class="fw-bold mb-3">赛事信息</h6>
+          <table class="table table-sm table-borderless mb-0">
+            <tr><td class="text-muted">比赛类型</td><td>{{ {'individual':'个人赛','team':'团体赛','mixed':'混合赛'}.get(comp.comp_type,'') }}</td></tr>
+            <tr><td class="text-muted">赛制</td><td>{{ comp.format_label }}</td></tr>
+            {% if comp.comp_type == 'team' %}
+            <tr><td class="text-muted">每队人数</td><td>{{ comp.team_size }} 人</td></tr>
+            {% endif %}
+            <tr><td class="text-muted">最大参赛</td><td>{{ comp.max_teams }} 队/人</td></tr>
+            <tr><td class="text-muted">积分规则</td><td>胜{{ comp.win_points }}平{{ comp.draw_points }}负{{ comp.loss_points }}</td></tr>
+            {% if comp.reg_start %}<tr><td class="text-muted">报名开始</td><td>{{ comp.reg_start.strftime('%m-%d %H:%M') }}</td></tr>{% endif %}
+            {% if comp.reg_end   %}<tr><td class="text-muted">报名截止</td><td>{{ comp.reg_end.strftime('%m-%d %H:%M') }}</td></tr>{% endif %}
+            {% if comp.start_date%}<tr><td class="text-muted">比赛开始</td><td>{{ comp.start_date.strftime('%m-%d') }}</td></tr>{% endif %}
+            {% if comp.end_date  %}<tr><td class="text-muted">比赛结束</td><td>{{ comp.end_date.strftime('%m-%d') }}</td></tr>{% endif %}
+            <tr><td class="text-muted">已报名</td><td>{{ registrations|length }} 支</td></tr>
+          </table>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 参赛名单 -->
+  <div class="tab-pane fade" id="tab-regs">
+    <div class="card"><div class="card-body">
+      {% if registrations %}
+      {% for r in registrations %}
+      {% set members = r.members_list %}
+      <div class="d-flex align-items-start gap-3 p-2 bg-light rounded mb-2">
+        <div class="flex-shrink-0">
+          {% if members and members[0].photo %}
+          <img src="{{ url_for('static', filename=members[0].photo) }}" alt="{{ r.team_name }}" style="width:48px;height:48px;object-fit:cover" class="rounded-circle">
+          {% else %}
+          <i class="bi bi-person-circle fs-1 text-muted"></i>
+          {% endif %}
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">{{ r.team_name or r.user.real_name or r.user.username }}</div>
+          {% if members %}
+          <div class="d-flex flex-wrap gap-1 mt-1">
+            {% for m in members %}
+            <span class="badge bg-light text-dark border d-flex align-items-center gap-1 py-1 px-2">
+              {% if m.photo %}
+              <img src="{{ url_for('static', filename=m.photo) }}" style="width:20px;height:20px;object-fit:cover" class="rounded-circle">
+              {% endif %}
+              {{ m.name }}{% if m.is_captain %}<i class="bi bi-star-fill text-warning" style="font-size:.6rem"></i>{% endif %}
+              <span class="text-muted" style="font-size:.7rem">{{ m.class_name or '' }}</span>
+            </span>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-muted small">{{ r.user.class_name or '' }} &nbsp; {{ r.user.student_id or '' }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p class="text-center text-muted py-3">暂无报名</p>
+      {% endif %}
+    </div></div>
+  </div>
+
+  <!-- 积分榜 -->
+  {% if groups %}
+  <div class="tab-pane fade" id="tab-standings">
+    {% for g in groups %}
+    {% if g.stage == 'group' %}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">{{ g.name }}</div>
+      <div class="table-responsive">
+        <table class="table standings-table table-sm mb-0">
+          <thead><tr>
+            <th>排名</th><th>队名</th><th>场次</th><th>胜</th><th>平</th><th>负</th>
+            <th>得分</th><th>失分</th><th>净胜</th><th>积分</th>
+          </tr></thead>
+          <tbody>
+            {% set members = g.members.order_by_rank() if g.members.order_by_rank is defined else g.members.all() %}
+            {% for m in g.members.all()|sort(attribute='points', reverse=True) %}
+            <tr {% if loop.index <= comp.top_advance // (groups|selectattr('stage','eq','group')|list|length) %}class="table-success"{% endif %}>
+              <td class="fw-bold">{{ loop.index }}</td>
+              <td>{{ m.registration.team_name or m.registration.user.real_name or m.registration.user.username }}</td>
+              <td>{{ m.played }}</td><td>{{ m.wins }}</td><td>{{ m.draws }}</td><td>{{ m.losses }}</td>
+              <td>{{ m.score_for }}</td><td>{{ m.score_against }}</td>
+              <td>{{ '+' if m.score_diff >= 0 else '' }}{{ m.score_diff }}</td>
+              <td class="fw-bold text-primary">{{ m.points }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- 赛程 -->
+  {% if matches %}
+  <div class="tab-pane fade" id="tab-matches">
+    {% set group_matches = matches|selectattr('stage','eq','group')|list %}
+    {% set ko_matches = matches|rejectattr('stage','eq','group')|list %}
+    {% if group_matches %}
+    <h6 class="fw-bold mb-2">小组赛</h6>
+    <div class="row g-2 mb-3">
+      {% for m in group_matches %}
+      <div class="col-md-6">
+        <div class="card match-card {{ m.status }} p-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-center flex-fill">
+              <div class="small fw-semibold">{{ m.home_reg.team_name if m.home_reg else '待定' }}</div>
+            </div>
+            <div class="text-center px-3">
+              {% if m.status == 'finished' %}
+              <span class="match-score">{{ m.home_score }} : {{ m.away_score }}</span>
+              {% else %}
+              <span class="text-muted">VS</span>
+              {% endif %}
+              <div style="font-size:.7rem" class="text-muted">{{ m.scheduled_at.strftime('%m/%d %H:%M') if m.scheduled_at else '' }}</div>
+            </div>
+            <div class="text-center flex-fill">
+              <div class="small fw-semibold">{{ m.away_reg.team_name if m.away_reg else '待定' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if ko_matches %}
+    <h6 class="fw-bold mb-2">淘汰赛</h6>
+    <div class="row g-2">
+      {% for m in ko_matches %}
+      <div class="col-md-6">
+        <div class="card match-card {{ m.status }} p-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-center flex-fill">
+              <div class="small fw-semibold {% if m.winner_reg_id == m.home_reg_id %}text-primary{% endif %}">
+                {{ m.home_reg.team_name if m.home_reg else '待定' }}
+              </div>
+            </div>
+            <div class="text-center px-3">
+              {% if m.status == 'finished' %}
+              <span class="match-score">{{ m.home_score }} : {{ m.away_score }}</span>
+              {% else %}
+              <span class="text-muted">VS</span>
+              {% endif %}
+              <div class="badge bg-light text-dark" style="font-size:.7rem">{{ m.stage_label }}</div>
+            </div>
+            <div class="text-center flex-fill">
+              <div class="small fw-semibold {% if m.winner_reg_id == m.away_reg_id %}text-primary{% endif %}">
+                {{ m.away_reg.team_name if m.away_reg else '待定' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- 公告 -->
+  {% if announcements %}
+  <div class="tab-pane fade" id="tab-news">
+    {% for a in announcements %}
+    <div class="card mb-2">
+      <div class="card-body py-2">
+        <div class="fw-bold">{{ a.title }}</div>
+        <div class="small text-muted mb-1">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+        <p class="mb-0 small">{{ a.content }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

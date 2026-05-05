@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}报名管理 - {{ comp.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">
+    <i class="bi bi-list-check me-2 text-warning"></i>报名管理 · {{ comp.name }}
+  </h4>
+  <div class="d-flex gap-2">
+    <form method="post" action="{{ url_for('competition.approve_all', cid=comp.id) }}">
+      <button class="btn btn-success btn-sm" onclick="return confirm('批量通过所有待审报名？')">
+        <i class="bi bi-check-all me-1"></i>全部通过
+      </button>
+    </form>
+    <a href="{{ url_for('competition.detail', cid=comp.id) }}" class="btn btn-outline-secondary btn-sm">返回赛事</a>
+  </div>
+</div>
+
+<!-- 统计 -->
+<div class="row g-2 mb-3">
+  {% set pending = regs|selectattr('status','eq','pending')|list|length %}
+  {% set approved = regs|selectattr('status','eq','approved')|list|length %}
+  {% set rejected = regs|selectattr('status','eq','rejected')|list|length %}
+  <div class="col-4 col-md-2"><div class="card text-center p-2"><div class="fs-3 fw-bold">{{ regs|length }}</div><div class="small text-muted">总计</div></div></div>
+  <div class="col-4 col-md-2"><div class="card text-center p-2"><div class="fs-3 fw-bold text-warning">{{ pending }}</div><div class="small text-muted">待审</div></div></div>
+  <div class="col-4 col-md-2"><div class="card text-center p-2"><div class="fs-3 fw-bold text-success">{{ approved }}</div><div class="small text-muted">已通过</div></div></div>
+  <div class="col-4 col-md-2"><div class="card text-center p-2"><div class="fs-3 fw-bold text-danger">{{ rejected }}</div><div class="small text-muted">已拒绝</div></div></div>
+</div>
+
+<!-- 报名列表 -->
+{% for r in regs %}
+<div class="card mb-3">
+  <div class="card-header d-flex justify-content-between align-items-center py-2">
+    <div>
+      <strong>{{ r.team_name or r.user.real_name or r.user.username }}</strong>
+      <span class="badge bg-{% if r.status=='approved' %}success{% elif r.status=='pending' %}warning text-dark{% else %}danger{% endif %} ms-2">
+        {{ {'approved':'已通过','pending':'待审核','rejected':'已拒绝'}.get(r.status, r.status) }}
+      </span>
+      <span class="text-muted small ms-2">
+        <i class="bi bi-person me-1"></i>{{ r.user.real_name or r.user.username }}
+        &nbsp;|&nbsp; <i class="bi bi-clock me-1"></i>{{ r.created_at.strftime('%m-%d %H:%M') }}
+      </span>
+    </div>
+    <div>
+      {% if r.status == 'pending' %}
+      <form method="post" action="{{ url_for('competition.approve_reg', cid=comp.id, rid=r.id) }}" class="d-inline">
+        <button class="btn btn-sm btn-success py-0">通过</button>
+      </form>
+      <form method="post" action="{{ url_for('competition.reject_reg', cid=comp.id, rid=r.id) }}" class="d-inline">
+        <button class="btn btn-sm btn-warning py-0">拒绝</button>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('competition.delete_reg', cid=comp.id, rid=r.id) }}" class="d-inline"
+            onsubmit="return confirm('确认删除此报名？')">
+        <button class="btn btn-sm btn-outline-danger py-0">删除</button>
+      </form>
+    </div>
+  </div>
+  <div class="card-body py-2">
+    <!-- 队员详细信息表格 -->
+    {% set members = r.members_list %}
+    {% if members %}
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered mb-0" style="font-size:.85rem">
+        <thead class="table-light">
+          <tr>
+            <th style="width:40px">#</th>
+            <th style="width:80px">相片</th>
+            <th>姓名</th>
+            <th>学号</th>
+            <th>班级</th>
+            <th style="width:60px">队长</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in members %}
+          <tr>
+            <td class="text-center text-muted">{{ loop.index }}</td>
+            <td class="text-center">
+              {% if m.photo %}
+              <img src="{{ url_for('static', filename=m.photo) }}" alt="{{ m.name }}" style="max-height:40px" class="rounded">
+              {% else %}
+              <i class="bi bi-person-circle text-muted" style="font-size:1.5rem"></i>
+              {% endif %}
+            </td>
+            <td class="fw-semibold">{{ m.name or '-' }}</td>
+            <td>{{ m.student_id or '-' }}</td>
+            <td>{{ m.class_name or '-' }}</td>
+            <td class="text-center">
+              {% if m.is_captain %}
+              <i class="bi bi-star-fill text-warning"></i>
+              {% else %}
+              -
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-muted small">
+      <i class="bi bi-person me-1"></i>{{ r.user.real_name or r.user.username }}
+      &nbsp;|&nbsp; {{ r.user.student_id or '-' }}
+      &nbsp;|&nbsp; {{ r.user.class_name or '-' }}
+    </div>
+    {% endif %}
+
+    {% if r.note %}
+    <div class="text-muted small mt-1"><i class="bi bi-chat-left-text me-1"></i>备注: {{ r.note }}</div>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body text-center text-muted py-4">暂无报名记录</div></div>
+{% endfor %}
+{% endblock %}
